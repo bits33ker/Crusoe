@@ -1,4 +1,0 @@
-Crusoe
-======
-
-Another GPS App
