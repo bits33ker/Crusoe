@@ -1,0 +1,14 @@
+//TODO list
+RESOURCES:
++	ACTIVITY_DATA: XML ppal. que muestra la posicion actual. 
++	GOTO_DATA: XML que muestra distancia al Waypoint.
++	GOTO_VIEW: Lista de Waypoints almacenados.
++	MARK: XML para la carga de datos de una posicion.
+
+ROADMAP:
++	MAPAS : poder visualizar mapas.
++	RUTAS: Creación de  rutas.
++	SATELITES: Visualizacion de Satelites.
++	TRAYECTO: XML que indica un trayecto seguido.
++	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.
++	WEB: Servidor web donde poder subir las cosas.

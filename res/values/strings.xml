@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Crusoe</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_mark">Mark</string>
+    <string name="action_map">Map</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="gps_signal_found">Señal de GPS encontrada</string>
+    <string name="gps_signal_not_found">Señal de GPS no encontrada</string>
+    <string name="action_quit">Quit</string>
+    <string name="mark_menu_name">Mark Menu</string>
+    <string name="action_wpt">Wpt</string>
+    <string name="action_goto">GoTo</string>
+    <string name="goto_name">GoTo List</string>
+</resources>
