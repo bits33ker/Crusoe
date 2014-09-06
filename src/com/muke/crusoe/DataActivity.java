@@ -116,18 +116,6 @@ public class DataActivity extends Activity {
 					app.RemoveLocationListener();//apaga gps.
 					Log.i("TAG", "DataActivity Looper.quit");
 					//falta terminar al app
-			        File root =  Environment.getExternalStorageDirectory();
-					File gpxfile = new File(root, "waypoints.gpx");
-					GpxTrackWriter csv = new GpxTrackWriter(gpxfile);
-					csv.writeHeader();
-					int i=0;
-					while(i<app.waypoints.size())
-					{
-						csv.writeWaypoint(app.waypoints.get(i));
-						i++;
-					}
-					csv.writeFooter();
-					csv.close();
 					/*
 					 * codigo a partir de la API 8.
 					//prueba de GPX con SAX.
@@ -169,10 +157,6 @@ public class DataActivity extends Activity {
 		            */
 				}
 			}
-		}
-		catch(FileNotFoundException e)
-		{
-			Log.i("ERROR", e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -239,6 +223,18 @@ public class DataActivity extends Activity {
     	// Handle item selection
     	switch (item.getItemId()) {
     	case R.id.action_map:
+    		break;
+    	case R.id.action_compass:
+       		if(mLocation!=null)
+    		{
+    			//waypoints.add(mLocation);
+    			Intent markIntent = new Intent(this, CompassActivity.class);
+    			this.startActivity(markIntent);
+    		}
+    		else
+	            Toast.makeText(getBaseContext(), 
+	                    "GPS no se encuentra en posicion", 
+	                    Toast.LENGTH_SHORT).show();
     		break;
     	case R.id.action_mark:
     	{
@@ -320,6 +316,24 @@ public class DataActivity extends Activity {
     			String wpt = data.getStringExtra("RESULT");
     			markWpt.setName(wpt);
     			app.waypoints.add(markWpt);
+    			try {
+    				File root =  Environment.getExternalStorageDirectory();
+					File gpxfile = new File(root, "waypoints.gpx");
+					GpxTrackWriter csv = new GpxTrackWriter(gpxfile);
+					csv.writeHeader();
+					int i=0;
+					while(i<app.waypoints.size())
+					{
+						csv.writeWaypoint(app.waypoints.get(i));
+						i++;
+					}
+					csv.writeFooter();
+					csv.close();
+    			}
+    			catch(FileNotFoundException e)
+    			{
+    				Log.i("ERROR", e.getMessage());
+    			}
     		}    		
     	}
     	/*
