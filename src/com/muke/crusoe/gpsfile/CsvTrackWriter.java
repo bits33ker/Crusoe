@@ -48,7 +48,7 @@ import android.location.Location;
  *
  * @author Rodrigo Damazio
  */
-public class CsvTrackWriter implements TrackFormatWriter {
+public class CsvTrackWriter implements FormatWriter {
 
   static final NumberFormat SHORT_FORMAT = NumberFormat.getInstance();
   static final SimpleDateFormat TIMESTAMP_FORMAT =
@@ -98,12 +98,10 @@ public class CsvTrackWriter implements TrackFormatWriter {
         null);
   }
 */
-  @Override
   public void writeOpenSegment() {
     // Do nothing
   }
 
-  @Override
   public void writeLocation(Location location)throws InterruptedException {
     String timeStr = TIMESTAMP_FORMAT.format(new Date(location.getTime()));
     writeCommaSeparatedLine("P",
@@ -118,7 +116,6 @@ public class CsvTrackWriter implements TrackFormatWriter {
         Integer.toString(segmentIdx));
   }
 
-  @Override
   public void writeWaypoint(WayPoint waypoint) {
     String timeStr = TIMESTAMP_FORMAT.format(new Date(waypoint.getTime()));
     writeCommaSeparatedLine("WAYPOINT",
@@ -163,7 +160,6 @@ public class CsvTrackWriter implements TrackFormatWriter {
     pw.println();
   }
 
-  @Override
   public void writeCloseSegment() {
     segmentIdx++;
   }
@@ -173,7 +169,6 @@ public class CsvTrackWriter implements TrackFormatWriter {
     // Do nothing
   }
 */
-  @Override
   public void writeFooter() {
     // Do nothing
   }

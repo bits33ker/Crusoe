@@ -4,15 +4,18 @@ import android.location.Location;
 
 public class WayPoint extends Location {
 	String name;
-	public WayPoint(String n, String provider) {
+	String description;
+	public WayPoint(String n, String d, String provider) {
 		super(provider);
 		// TODO Auto-generated constructor stub
 		name = n;
+		description="";
 	}
-	public WayPoint(String n, Location l)
+	public WayPoint(String n, String d, Location l)
 	{
 		super(l);
 		name = n;
+		description=d;
 	}
 	public WayPoint(Location l)
 	{

@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 
 import com.muke.crusoe.CrusoeApplication.thread_status;
 import com.muke.crusoe.gpsfile.GpxTrackWriter;
+import com.muke.crusoe.gpsfile.GpxWriter;
+import com.muke.crusoe.gpsfile.RoutePoint;
 import com.muke.crusoe.gpsfile.WayPoint;
 
 import android.app.Activity;
@@ -28,30 +30,52 @@ public class GotoDataActivity extends Activity {
 	TextView txtVel;
 	TextView txtDir;
 	TextView txtDist;
+	TextView txtAcc;
 	WayPoint mLocation = null;
 	//WayPoint gotoWpt = null;
 	WayPoint markWpt = null;
 	boolean bQuit = false;
 	final int MarkRC=1;//id para el mark
 	final int GotoRC=2;//id del goto
+	final int RouteRC=3;//id de las rutas
 	
-	boolean goback=false;
+	//boolean goback=false;
 
 	private final IntentFilter intentFilter = new IntentFilter(CrusoeApplication.CRUSOE_LOCATION_INTENT);
 	private final CrusoeLocationReceiver mReceiver = new CrusoeLocationReceiver();
 	private boolean registered=false;
 	
-	void InitializeUI()
+	void InitializeGotoUI()
 	{
-		txtGoto = (TextView) findViewById(R.id.txtGoto);
-		txtLat = (TextView) findViewById(R.id.txtLat);
-		txtLong = (TextView) findViewById(R.id.txtLong);
-		txtVel = (TextView) findViewById(R.id.txtVel);
-		txtDir = (TextView) findViewById(R.id.txtDir);
-		txtDist = (TextView) findViewById(R.id.txtDist);
+		txtGoto = (TextView) findViewById(R.id.Renglon1);
+		txtLat = (TextView) findViewById(R.id.Renglon2);
+		txtLong = (TextView) findViewById(R.id.Renglon3);
+		txtVel = (TextView) findViewById(R.id.Renglon4);
+		txtDir = (TextView) findViewById(R.id.Renglon5);
+		txtDist = (TextView) findViewById(R.id.Renglon6);
 				
+		txtLat.setText("LATITUD: -");
+		txtLong.setText("LONGITUD: -");
+		txtVel.setText("VELOCIDAD: -");
+		txtDir.setText("DIRECCION: -");
+		txtDist.setText("DISTANCIA: -");
 	}
-
+	void InitializeDataUI()
+	{
+		txtLat = (TextView) findViewById(R.id.Renglon1);
+		txtLong = (TextView) findViewById(R.id.Renglon2);
+		txtVel = (TextView) findViewById(R.id.Renglon3);
+		txtDir = (TextView) findViewById(R.id.Renglon4);
+		txtAcc = (TextView) findViewById(R.id.Renglon5);
+		txtDist = (TextView) findViewById(R.id.Renglon6);
+				
+		txtLat.setText("LATITUD: -");
+		txtLong.setText("LONGITUD: -");
+		txtVel.setText("VELOCIDAD: -");
+		txtDir.setText("DIRECCION: -");
+		txtAcc.setText("ACCURACY: -");
+		txtDist.setText("");
+	}
 	private class CrusoeLocationReceiver extends BroadcastReceiver{
 
 		@Override
@@ -61,18 +85,30 @@ public class GotoDataActivity extends Activity {
 			
 	        //handler.sendEmptyMessage(1000);//envia mensaje. Atiende handler
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
-			mLocation = new WayPoint("", intent.getExtras().getString("PROVIDER"));
+			mLocation = new WayPoint("", "", intent.getExtras().getString("PROVIDER"));
 			mLocation.setAccuracy(intent.getFloatExtra("ACCURACY", (float)0.0));
 			mLocation.setLatitude(intent.getDoubleExtra("LATITUD", 0.0));
 			mLocation.setLongitude(intent.getDoubleExtra("LONGITUD", 0.0));
 			
-			float dist = mLocation.distanceTo(app.gotoWpt);
-			float bear = mLocation.bearingTo(app.gotoWpt);			
-			txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
-			txtLong.setText("Long " + intent.getDoubleExtra("LONGITUD", 0.0));
-			txtDist.setText("Dist " + dist);
-			txtDir.setText("Dir " + bear);
-			txtVel.setText("Vel " + intent.getFloatExtra("SPEED", (float) 0.0));
+			if(app.gotoWpt==null)
+			{
+				txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
+				txtLong.setText("Long: " + intent.getDoubleExtra("LONGITUD", 0.0));
+				txtAcc.setText("Acc: " + intent.getDoubleExtra("ACCURACY", 0.0));
+				txtDir.setText("Dir: " + 0.0);
+				txtVel.setText("Vel: " + intent.getFloatExtra("SPEED", (float) 0.0));
+			}
+			else
+			{
+				//cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
+				float dist = mLocation.distanceTo(app.gotoWpt);
+				float bear = mLocation.bearingTo(app.gotoWpt);			
+				txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
+				txtLong.setText("Long " + intent.getDoubleExtra("LONGITUD", 0.0));
+				txtDist.setText("Dist " + dist);
+				txtDir.setText("Dir " + bear);
+				txtVel.setText("Vel " + intent.getFloatExtra("SPEED", (float) 0.0));
+			}
 	        //Toast.makeText(context, 
 	        //        "BROADCAST RECEIVER", 
 	        //        Toast.LENGTH_LONG).show();
@@ -96,25 +132,8 @@ public class GotoDataActivity extends Activity {
 				{
 					app.RemoveLocationListener();//apaga gps.
 					Log.i("TAG", "DataActivity Looper.quit");
-					//falta terminar al app
-			        File root =  Environment.getExternalStorageDirectory();
-					File gpxfile = new File(root, "waypoints.gpx");
-					GpxTrackWriter csv = new GpxTrackWriter(gpxfile);
-					csv.writeHeader();
-					int i=0;
-					while(i<app.waypoints.size())
-					{
-						csv.writeWaypoint(app.waypoints.get(i));
-						i++;
-					}
-					csv.writeFooter();
-					csv.close();
 				}
 			}
-		}
-		catch(FileNotFoundException e)
-		{
-			Log.i("ERROR", e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -143,35 +162,24 @@ public class GotoDataActivity extends Activity {
 			//CrusoeApplication app = (CrusoeApplication)getApplication();
 			//app.RemoveLocationListener();
 	}
-	/*
-	@Override
-	protected void onDestroy()
-	{	//cuando termina o es destruida por el sistema
-		//http://developer.android.com/reference/android/app/Activity.html
-			super.onDestroy();
-			Log.i("TAG", "DataActivity.onDestroy");
-			CrusoeApplication app = (CrusoeApplication)getApplication();
-			app.RemoveLocationListener();
-	}*/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		try{
-			Log.i("TAG", "DataActivity.onCreate");
+			Log.i("TAG", "GotoDataActivity.onCreate");
 			setContentView(R.layout.goto_data);
-			InitializeUI();
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
+			app.CargoWayPoints();
 			//Disparo GotoActivity con el menu de waypoints a elegir
 			if(app.gotoWpt==null)
-				{
-				Intent intent = this.getIntent();
-				String p = intent.getStringExtra("WAYPOINTS");
-				Intent gotoIntent = new Intent(this, GotoActivity.class);
-				gotoIntent.putExtra("WAYPOINTS", p);
-				this.startActivityForResult(gotoIntent, GotoRC);
-				return;
-			}	
-			txtGoto.setText("GOTO " + app.gotoWpt.getName());
+			{
+				InitializeDataUI();
+			}
+			else
+			{
+				InitializeGotoUI();
+				txtGoto.setText("GOTO " + app.gotoWpt.getName());
+			}
 			if(!registered)
 			{
 				this.registerReceiver(mReceiver, intentFilter);
@@ -193,20 +201,16 @@ public class GotoDataActivity extends Activity {
 	{
 		super.onRestart();
 		try {
-			//todo a restart
-			//Intent intent = this.getIntent();
-			if(goback)
-			{
-				goback= false;
-		    	Intent returnIntent = new Intent();
-	        	setResult(RESULT_CANCELED,returnIntent);
-	        	finish();
-	        	return;
-			}
-			InitializeUI();
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
 			if(!(app.gotoWpt == null))
+			{
+				InitializeGotoUI();
 				txtGoto.setText("GOTO " + app.gotoWpt.getName());
+			}
+			else
+			{
+				InitializeDataUI();			
+			}
 			//gotoWpt = new WayPoint(intent.getStringExtra("GOTO"), intent.getStringExtra("PROVIDER"));
 			if(!registered)
 			{
@@ -228,33 +232,84 @@ public class GotoDataActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(resultCode==RESULT_CANCELED)
 		{
-	    	if(requestCode==GotoRC)
-	    	{
-	    		goback = true;
-	    	}
 			return;
 		}
 			
-    	if(requestCode==GotoRC)
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+    	if(requestCode==RouteRC)
     	{
     		if(resultCode==RESULT_OK)
     		{
-    			CrusoeApplication app = ((CrusoeApplication)getApplication());
     			String res = data.getStringExtra("RESULT");
     			int i=0;
-    			app.gotoWpt = null;
-    			while(i<app.waypoints.size())
+    			app.ruta_seguir = null;
+    			while(i<app.routes.size())
     			{
-    				String nombre = app.waypoints.get(i).getName();
+    				String nombre = app.routes.get(i).getName();
     				if(res.compareTo(nombre)==0)
     					break;
     				i++;
     			}
-    			if(i<app.waypoints.size())
+    			if(i<app.routes.size())
     			{
-    				app.gotoWpt = app.waypoints.get(i);
+    				app.ruta_seguir = app.routes.get(i);
     			}
     		}
+    	}
+    	if(requestCode==GotoRC)
+    	{
+    		if(resultCode==RESULT_OK)
+    		{
+    			String res = data.getStringExtra("RESULT");
+    			app.gotoWpt = null;
+    			for(RoutePoint r: app.routes)
+    			{
+    				for(WayPoint w: r.Locations())
+    				{
+    					if(res.compareTo(w.getName())==0)
+    					{
+    						app.gotoWpt = w;
+    						return;
+    					}
+    				}
+    			}
+    		}
+    	}
+    	if(requestCode==MarkRC)
+    	{
+    		if(resultCode==RESULT_OK)
+    		{
+    			String wpt = data.getStringExtra("RESULT");
+    			markWpt.setName(wpt);
+    			RoutePoint ruta = app.getRoute("waypoints");
+    			if(ruta==null)
+    			{
+    				Log.i("ERROR", "No encuentra la lista waypoints");
+    	            Toast.makeText(getBaseContext(), 
+    	                    "No se encuentra la lista Waypoints", 
+    	                    Toast.LENGTH_SHORT).show();
+    				return;
+    			}
+    			ruta.addWayPoint(markWpt);
+    			try {
+    				File WaypointsDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Waypoints");
+					File gpxfile = new File(WaypointsDir, "waypoints.gpx");
+					GpxWriter csv = new GpxWriter(gpxfile);
+					csv.writeHeader();
+					int i=0;
+					while(i<app.getRoute("waypoints").Locations().size())
+					{
+						csv.writeWaypoint(app.getRoute("waypoints").getWayPoint(i));
+						i++;
+					}
+					csv.writeFooter();
+					csv.close();
+    			}
+    			catch(FileNotFoundException e)
+    			{
+    				Log.i("ERROR", e.getMessage());
+    			}
+    		}    		
     	}
     	return;
     }
@@ -269,7 +324,40 @@ public class GotoDataActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection
     	switch (item.getItemId()) {
-    	case R.id.action_map:
+    	case R.id.action_track:
+    	{
+    		//grabo a disco el trayecto con nombre de la fecha actual.
+    		//En ppio. guardo un trayecto por fecha.
+    		//Cada archivo tiene varios trayectos con nombre del goto y la hora.
+    		//los segmentos son por si apago el track o se pierde la señal.
+    		//Crear la carpeta Crusoe
+    		//Crear los subdirs Tracks y Waypoints.
+    		//El archivo Waypoints guarda los waypoints generales en la carpeta Waypoints.
+    		//Las rutas van en la carpeta Waypoints.
+    		//Los nombre de las rutas corresponden al nombre del archivo.
+    		//Cada ruta se compone de los waypoints que contiene el archivo.
+    		if(mLocation!=null)
+    		{
+    			CrusoeApplication app = ((CrusoeApplication)getApplication());
+    			app.SaveTrack();
+    		}
+    		else
+	            Toast.makeText(getBaseContext(), 
+	                    "GPS no se encuentra en posicion", 
+	                    Toast.LENGTH_SHORT).show();
+    	}
+    		break;
+    	case R.id.action_compass:
+       		if(mLocation!=null)
+    		{
+    			//waypoints.add(mLocation);
+    			Intent markIntent = new Intent(this, CompassActivity.class);
+    			this.startActivity(markIntent);
+    		}
+    		else
+	            Toast.makeText(getBaseContext(), 
+	                    "GPS no se encuentra en posicion", 
+	                    Toast.LENGTH_SHORT).show();
     		break;
     	case R.id.action_mark:
     	{
@@ -292,14 +380,15 @@ public class GotoDataActivity extends Activity {
     	case R.id.action_goto:
     	{
     		CrusoeApplication app = ((CrusoeApplication)getApplication());
-    		if(app.waypoints.size()>0)
+    		if(app.routes.size()>0)
     		{
-    			int i=0;
     			String param="";
-    			while(i<app.waypoints.size())
+    			for(RoutePoint r : app.routes)
     			{
-    				param = param + app.waypoints.get(i).getName() + ";";
-    				i++;
+    				for(WayPoint w: r.Locations())
+    				{
+    					param = param + w.getName() + ";";
+    				}
     			}
 				Intent gotoIntent = new Intent(this, GotoActivity.class);
 				gotoIntent.putExtra("WAYPOINTS", param);
@@ -311,9 +400,31 @@ public class GotoDataActivity extends Activity {
 	                    Toast.LENGTH_SHORT).show();
     	}
     		break;
+    	case R.id.action_route:
+    	{
+    		CrusoeApplication app = ((CrusoeApplication)getApplication());
+    		if(app.routes.size()>0)
+    		{
+    			int i=0;
+    			String param="";
+    			while(i<app.routes.size())
+    			{
+    				param = param + app.routes.get(i).getName() + ";";
+    				i++;
+    			}
+				Intent routeIntent = new Intent(this, GotoActivity.class);
+				routeIntent.putExtra("ROUTES", param);
+				this.startActivityForResult(routeIntent, RouteRC);
+    		}
+    		else
+	            Toast.makeText(getBaseContext(), 
+	                    "No hay Rutas guardadas", 
+	                    Toast.LENGTH_SHORT).show();
+    	}
+    		break;
     	case R.id.action_settings:
     		Toast.makeText(this.getBaseContext(), 
-	                "VERSION 0.0.0.1", 
+	                "VERSION 0.0.0.3", 
 	                Toast.LENGTH_LONG).show();
     		break;
     	case R.id.action_quit:

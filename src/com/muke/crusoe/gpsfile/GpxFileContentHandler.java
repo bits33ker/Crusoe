@@ -38,7 +38,7 @@ public class GpxFileContentHandler implements ContentHandler {
             //location.setLongitude(Double.parseDouble(atts.getValue("lon").trim()));
         }
         if (localName.equalsIgnoreCase("wpt")) {
-            location = new WayPoint("", "gpxImport");//name, provider
+            location = new WayPoint("", "", "gpxImport");//name, provider
             location.setLatitude(Double.parseDouble(atts.getValue("lat").trim()));         
             location.setLongitude(Double.parseDouble(atts.getValue("lon").trim()));
         }

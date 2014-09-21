@@ -1,13 +1,35 @@
 //TODO list
 RESOURCES:
-+	ACTIVITY_DATA: XML ppal. que muestra la posicion actual. 
++	ACTIVITY_DATA: XML ppal. que muestra la posicion actual. Se fucionó con GOTO_DATA.
 +	GOTO_DATA: XML que muestra distancia al Waypoint.
 +	GOTO_VIEW: Lista de Waypoints almacenados.
 +	MARK: XML para la carga de datos de una posicion.
++	COMPASS: actividad  del compass en modo 'portrait'.
++	COMPASS_LAND: actividad del compass en modo 'landscape'.
+
+VERSIONES:
+0.0.0.1: Primer version en github. Solo muestra datos y posee goto.
+0.0.0.2: Version con Compass.
+0.0.0.3: Actual. 
+	Unificar actividades DATA y GOTO_DATA. OK.
+	Se creo la carpeta Crusoe/Waypoints para Rutas y Waypoints. OK
+	Se creo la carpeta Tracks para los tracks. OK
+	Activar Tracking. OK.
+	importar o cargar a mano waypoints del rio. Cargue una ruta de ejemplo no mas.
+	cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
+	Cuando esto sucede debo reinicializar la Actividad.
+	Se creo RoutePoint que contiene el nombre de la ruta y los waypoints.
+	Falta el manejo de Rutas y GotoWpt en la CompassActivity.			
+		(Ver carpeta C:\Users\Eugenio\Documents\Waypoints). 
 
 ROADMAP:
-+	MAPAS : poder visualizar mapas.
++	TRACKING: poder guardar el movimiento realizado.
++	WAYPOINTS: poder importar waypoints de (http://www.cibernautica.com.ar/derrote/cargarcolonia.htm).
++	DIRECTORIOS: Crear directorio CRUSOE, y directorios para Waypoints, Rutas y Tracking.
 +	RUTAS: Creación de  rutas.
++	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo.
++	Versiones para distintos modelos y tamaños de Android.
++	MAPAS : poder visualizar mapas.
 +	SATELITES: Visualizacion de Satelites.
 +	TRAYECTO: XML que indica un trayecto seguido.
 +	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.

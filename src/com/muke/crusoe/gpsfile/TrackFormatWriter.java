@@ -58,54 +58,11 @@ public interface TrackFormatWriter {
    */
   String getExtension();
 
-  /**
-   * Writes the header.
-   * This is chance for classes to write out opening information.
-   */
-  void writeHeader();
-
-  /**
-   * Writes the footer.
-   * This is chance for classes to write out closing information.
-   */
-  void writeFooter();
-
-  /**
-   * Write the given location object.
-   *
-   * TODO Add some flexible handling of other sensor data.
-   *
-   * @param location the location to write
-   */
-  void writeLocation(Location location) throws InterruptedException;
-
-  /**
-   * Write a way point.
-   *
-   * @param waypoint
-   */
-  void writeWaypoint(WayPoint waypoint);
-
-  /**
-   * Write the beginning of a track.
-   */
-  //void writeBeginTrack(Location firstPoint);
-
-  /**
-   * Write the end of a track.
-   */
-  //void writeEndTrack(Location lastPoint);
-
-  /**
-   * Write the statements necessary to open a new segment.
-   */
-  void writeOpenSegment();
-
-  /**
-   * Write the statements necessary to close a segment.
-   */
-  void writeCloseSegment();
-
+  /*
+   * 
+   * escribo completo un track
+   * */
+  void writeTrack(TrackPoint t, String name);
   /**
    * Close the underlying file handle.
    */
