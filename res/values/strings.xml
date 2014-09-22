@@ -10,7 +10,9 @@
     <string name="gps_signal_not_found">Señal de GPS no encontrada</string>
     <string name="action_quit">Quit</string>
     <string name="mark_menu_name">Mark Menu</string>
-    <string name="action_wpt">Wpt</string>
+    <string name="action_track">Track</string>
     <string name="action_goto">GoTo</string>
     <string name="goto_name">GoTo List</string>
+    <string name="action_compass">Compass</string>
+    <string name="action_route">Rutas</string>
 </resources>

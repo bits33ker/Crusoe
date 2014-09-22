@@ -1,8 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/action_settings" android:title="@string/action_settings"></item>  
     <item android:id="@+id/action_mark" android:title="@string/action_mark"></item>
-    <item android:id="@+id/action_map" android:title="@string/action_map"></item>      
+    <item android:id="@+id/action_route" android:title="@string/action_route"></item>      
     <item android:id="@+id/action_quit" android:title="@string/action_quit"></item>
-    <item android:id="@+id/action_wpt" android:title="@string/action_wpt"></item>
+    <item android:id="@+id/action_track" android:title="@string/action_track"></item>
     <item android:id="@+id/action_goto" android:title="@string/action_goto"></item>
+    <item android:id="@+id/action_compass" android:title="@string/action_compass"></item>
 </menu>
