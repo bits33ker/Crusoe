@@ -10,63 +10,63 @@
     tools:context=".DataActivity" >
 
     <TextView
-        android:id="@+id/txtGoto"
+        android:id="@+id/Renglon1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="GOTO"
+        android:text="RENGLON 1"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/txtLat"
+        android:id="@+id/Renglon2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/txtGoto"
-        android:layout_below="@+id/txtGoto"
-        android:text="Latitud"
+        android:layout_alignRight="@+id/Renglon1"
+        android:layout_below="@+id/Renglon1"
+        android:text="RENGLON 2"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/txtLong"
+        android:id="@+id/Renglon3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/txtLat"
-        android:layout_below="@+id/txtLat"
-        android:text="Longitud"
+        android:layout_alignRight="@+id/Renglon1"
+        android:layout_below="@+id/Renglon2"
+        android:text="RENGLON 3"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/txtDist"
+        android:id="@+id/Renglon4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/txtLong"
-        android:layout_below="@+id/txtLong"
-        android:text="Distancia"
+        android:layout_alignRight="@+id/Renglon1"
+        android:layout_below="@+id/Renglon3"
+        android:text="RENGLON 4"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/txtDir"
+        android:id="@+id/Renglon5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/txtVel"
-        android:layout_below="@+id/txtDist"
-        android:text="Direccion"
+        android:layout_alignRight="@+id/Renglon1"
+        android:layout_below="@+id/Renglon4"
+        android:text="RENGLON 5"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/txtVel"
+        android:id="@+id/Renglon6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/txtLat"
-        android:layout_below="@+id/txtDir"
-        android:text="Velocidad"
+        android:layout_alignRight="@+id/Renglon1"
+        android:layout_below="@+id/Renglon5"
+        android:text="RENGLON 6"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>
