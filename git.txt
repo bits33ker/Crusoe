@@ -1,0 +1,37 @@
+git init
+git config --global user.name "hacha74"
+git config --global user.email "eugeniovoss@gmail.com"
+# para chequear la configuracion
+git config --list
+git config --help
+#agrego archivos a repositorio local
+git add *.java
+git add TODO.txt
+git commit -m 'version 0.0.1'
+#Salida
+# [master (root-commit) 7bccfc4] version 0.0.1
+# 14 files changed, 1849 insertions(+)
+# create mode 100755 TODO.txt
+# create mode 100755 gen/com/muke/crusoe/BuildConfig.java
+# create mode 100755 gen/com/muke/crusoe/R.java
+# create mode 100755 src/com/muke/crusoe/CrusoeApplication.java
+# create mode 100755 src/com/muke/crusoe/CrusoeLocationReceiver.java
+# create mode 100755 src/com/muke/crusoe/DataActivity.java
+# create mode 100755 src/com/muke/crusoe/GotoActivity.java
+# create mode 100755 src/com/muke/crusoe/GotoDataActivity.java
+# create mode 100755 src/com/muke/crusoe/MarkActivity.java
+# create mode 100755 src/com/muke/crusoe/gpsfile/CsvTrackWriter.java
+# create mode 100755 src/com/muke/crusoe/gpsfile/GpxFileContentHandler.java
+# create mode 100755 src/com/muke/crusoe/gpsfile/GpxTrackWriter.java
+# create mode 100755 src/com/muke/crusoe/gpsfile/TrackFormatWriter.java
+# create mode 100755 src/com/muke/crusoe/gpsfile/WayPoint.java
+
+#para clonar un repositorio externo
+git clone git://github.com/hacha74/grit.git mygrit
+#seteo origen
+git remote add origin https://github.com/hacha74/Crusoe.git
+#subo los fuentes
+git push origin master
+
+#para clonar un repositorio (ojo!! clona todo a .git esto es así para poder trabajar sin problemas en el directorio local)
+git clone --bare https://github.com/hacha74/Crusoe.git .git

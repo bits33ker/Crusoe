@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Crusoe</string>
+    <string name="action_settings">Configuracion</string>
+    <string name="action_mark">Marca</string>
+    <string name="action_map">Mapas</string>
+    <string name="hello_world">Hola mundo!</string>
+	<string name="gps_signal_found">Señal de GPS encontrada</string>
+    <string name="gps_signal_not_found">Señal de GPS no encontrada</string>
+    <string name="action_quit">Cerrar</string>
+    <string name="mark_menu_name">Menu Marca</string>
+    <string name="action_track">Camino</string>
+    <string name="action_goto">Ir a</string>
+    <string name="goto_name">Lista Ir A</string>
+    <string name="action_compass">Compas</string>
+    <string name="action_route">Rutas</string>
+    <string name="data_latitud">LATITUD</string>
+    <string name="data_longitud">LONGITUD</string>
+    <string name="data_speed">VELOCIDAD</string>
+    <string name="data_direction">DIRECCION</string>
+    <string name="data_accuracy">PRECISION</string>
+    <string name="data_distance">DISTANCIA</string>
+    <string name="error_mark">No se encuentra la lista de Waypoints</string>
+    <string name="error_gps_pos">GPS no se encuentra en posicion</string>
+    <string name="error_no_wpt">No hay Waypoints almacenados</string>
+    <string name="error_no_routes">No hay Rutas almacenadas</string>
+</resources>

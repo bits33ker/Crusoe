@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class GotoActivity extends ListActivity{
-	ArrayList<String> waypoints = new ArrayList<String>();	//nombre de los waypoints
+	ArrayList<String> names = new ArrayList<String>();	//nombre de los waypoints
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -18,21 +18,28 @@ public class GotoActivity extends ListActivity{
 		Log.i("TAG", "GotoActivity.onCreate");
 		//setContentView(R.layout.goto_view);
 		Intent intent = this.getIntent();
-		String p = intent.getStringExtra("WAYPOINTS");
+		String p = intent.getStringExtra("NAMES");
+		if(p==null)
+		{
+	    	Intent returnIntent = new Intent();
+	    	setResult(RESULT_CANCELED,returnIntent);
+			finish();
+			return;
+		}
 		String[] lista = p.split(";");
 		int i=0;
 		while(i<lista.length)
 		{
-			waypoints.add(lista[i]);
+			names.add(lista[i]);
 			i++;
 		};
 		setListAdapter(new ArrayAdapter<String>(GotoActivity.this,
-				R.layout.goto_view, waypoints));
+				R.layout.goto_view, names));
 
 	}
 	@Override
 	public void onListItemClick(ListView l, View v, int pos, long id) {
-		String res = waypoints.get(pos);
+		String res = names.get(pos);
     	Intent returnIntent = new Intent();
     	returnIntent.putExtra("RESULT",res);
     	Log.i("GOTO", res);

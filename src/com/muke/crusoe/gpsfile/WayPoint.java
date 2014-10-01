@@ -32,6 +32,40 @@ public class WayPoint extends Location {
 	}
 	public String getDescription()
 	{
-		return "";
+		return description;
+	}
+	public String getLatDMS()
+	{
+		double l=this.getLatitude();
+		String res = "";
+		if(l<0)
+		{
+			l=-l;
+			res="S ";
+		}
+		else
+			res = "N ";
+		int grados=(int) l;
+		double min = (l-grados)*60.0;
+		int seg = (int) ((min - (int)min)*60);
+		res= res + String.format("%d°%d\'%d\"", grados, (int)min, seg);
+		return res;
+	}
+	public String getLongDMS()
+	{
+		double l=this.getLatitude();
+		String res = "";
+		if(l<0)
+		{
+			l=-l;
+			res="W ";
+		}
+		else
+			res = "E ";
+		int grados=(int) l;
+		double min = (l-grados)*60.0;
+		int seg = (int) ((min - (int)min)*60);
+		res= res + String.format("%d°%d\'%d\"", grados, (int)min, seg);
+		return res;
 	}
 }

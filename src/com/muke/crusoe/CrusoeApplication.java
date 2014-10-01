@@ -85,7 +85,6 @@ public final class CrusoeApplication extends Application implements Runnable{
 	    		return;//ya los cargo
 	    	
 	        System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
-	        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 	        /*
 	        SAXParserFactory spf = SAXParserFactory.newInstance();
 	        spf.setNamespaceAware(true);
@@ -93,8 +92,6 @@ public final class CrusoeApplication extends Application implements Runnable{
 	        SAXParser saxParser = spf.newSAXParser();
 	        XMLReader xmlReader = saxParser.getXMLReader();
 	        */      
-	        GpxFileContentHandler gpxFileContentHandler = new GpxFileContentHandler();
-	        xmlReader.setContentHandler(gpxFileContentHandler);
 
 	        File CrusoeDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Waypoints");
 	        if(!CrusoeDir.isDirectory())
@@ -103,6 +100,9 @@ public final class CrusoeApplication extends Application implements Runnable{
 	        int f=0;
 	        for(File a : archivos)
 	        {
+		        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+		        GpxFileContentHandler gpxFileContentHandler = new GpxFileContentHandler();
+		        xmlReader.setContentHandler(gpxFileContentHandler);
 	        	FileReader fileReader = new FileReader(a);
 	        	InputSource inputSource = new InputSource(fileReader);          
 	        	xmlReader.parse(inputSource);
@@ -165,54 +165,112 @@ public final class CrusoeApplication extends Application implements Runnable{
 	private class CrusoeLocationListener implements LocationListener
 	{
 	  	boolean first_loc=true;
+	  	long tinicio = 0;//tiempo inicial
 	    
 		@Override
 		public void onLocationChanged(Location loc) {
-			// TODO Auto-generated method stub
-            if (loc != null && first_loc==true) {
+        	/*
+        	 * TODO
+        	 * Calcular:
+        	 * Nombre del Waypoint 
+        	 * Latitud, Longitud, Elevacion
+        	 * Velocidad
+        	 * Direccion actual, Direccion al Waypoint
+        	 * Distancia recorrida, Distancia al Waypoint
+        	 * Provider
+        	 * Hora de Inicio, Hora actual
+        	 * Tiempo de tracking, tiempo estimado de llegada
+        	 */
+			if(loc==null)
+				return;
+            if (first_loc==true) {
+            	tinicio = System.currentTimeMillis();
                 Toast.makeText(getBaseContext(), 
                     getResources().getString(R.string.gps_signal_found), 
                     Toast.LENGTH_SHORT).show();
                 
-                first_loc=false;
             }
  
                 try { 
                 	if(!(lastWpt!=null))
+                	{                	
                 		lastWpt = loc;
-                	if(lastWpt.distanceTo(loc)>=50.0)
                 		track.AddLocation(loc);
+                	}
+                	else
+                	{
+                		if(lastWpt.distanceTo(loc)>=50.0)
+                			track.AddLocation(loc);
+                	}
                 	if(gotoWpt!=null)
                 	{
                 		//si se acerca a mas de 50 mts y luego se aleja 100 asumo que llegó al Waypoint
                 		float dist = gotoWpt.distanceTo(loc);
                 		if(dist<50)
                 			bcerca = true;
-                		if(dist>100 && bcerca==true)
+                		if(dist==0 || (dist>100 && bcerca==true))
                 		{
                 			gotoWpt = null;
                 			bcerca = false;//llegó y se está alejando
                 			//debo avisar que reinicialice la actividad!!
+                			track.StopSegment();
+                			if(ruta_seguir!=null)
+                			{
+                				gotoWpt = (WayPoint)ruta_seguir.Locations().toArray()[0];
+                				ruta_seguir.Locations().remove(gotoWpt);
+                				if(ruta_seguir.Locations().isEmpty())
+                					ruta_seguir = null;//destruyo
+                				track.StartSegment();
+                			}
                 		}
                 	}
                 		
                 		
                 	Intent t = new Intent();
                 	t.setAction("com.muke.crusoe.Crusoe");
+                	
                 	//debo agregar a intent los datos de Location
+                	if(gotoWpt!=null)
+                	{                	
+                		t.putExtra("NAME", gotoWpt.getName());
+                		t.putExtra("DISTTO", loc.distanceTo(gotoWpt));
+                	}
+                	float dist = loc.distanceTo(track.FirstLocation());
+                	t.putExtra("TRACK", dist);//recorrido
                 	t.putExtra("LATITUD", loc.getLatitude());
                 	t.putExtra("LONGITUD", loc.getLongitude());
-                	t.putExtra("ACCURACY", loc.getAccuracy());
-                    t.putExtra("BEARING", loc.getBearing());
-                    t.putExtra("SPEED", loc.getSpeed());
+                	Date d = new Date(System.currentTimeMillis()-tinicio);//hora local
+                	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");                	
+                	t.putExtra("TRANSCURRIDO", sdf.format(d));
+                	float tiempo = 1000*dist;
+                	if(loc.getSpeed()>0)
+                		t.putExtra("ETA", sdf.format(tiempo/loc.getSpeed()));//tiempo estimado de arrivo
+                	else
+                		t.putExtra("ETA", "INF");//tiempo estimado de arrivo
+                	if(loc.hasAltitude())
+                		t.putExtra("ELEVACION", loc.getAltitude());//mts sobre el nivel del mar
+                	if(loc.hasAccuracy())
+                		t.putExtra("ACCURACY", loc.getAccuracy());
+                	if(loc.hasBearing())
+                	{
+                		t.putExtra("COURSE", loc.getBearing());//0-360. direccion actual
+                		if(gotoWpt!=null)
+                			t.putExtra("BEARING", loc.bearingTo(gotoWpt));//direccion al punto
+                	}
+                    if(loc.hasSpeed())
+                    {//esta en mts/seg.
+                    	double speed = loc.getSpeed()*3.6;
+                    	t.putExtra("SPEED", speed);//*3600/1000 -> KM/h
+                    }
                     t.putExtra("PROVIDER", loc.getProvider());
     				sendBroadcast(t);
                 	//File root = Environment.getExternalStorageDirectory();    
+                    first_loc=false;
                 }
                 catch(Exception e)
                 {
                     Toast.makeText(getBaseContext(), 
-                    		"Could not write file " + e.getMessage(), 
+                    		"onLocationChanged: " + e.getMessage(), 
                             Toast.LENGTH_SHORT).show();
                 }			
 		}

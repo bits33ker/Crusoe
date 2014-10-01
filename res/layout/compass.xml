@@ -7,49 +7,37 @@
 
     <ImageView
         android:id="@+id/compassImg"
-        android:layout_width="fill_parent"
-        android:layout_height="176dp"
+        android:layout_width="211dp"
+        android:layout_height="155dp"
         android:layout_gravity="center_horizontal"
         android:src="@drawable/compass2" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/Renglon1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/Renglon1"
-            android:layout_width="124dp"
-            android:layout_height="30dp"
-            android:layout_weight="1.75"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/Renglon2"
-            android:layout_width="124dp"
-            android:layout_height="30dp"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/Renglon2"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/Renglon3"
-            android:layout_width="122dp"
-            android:layout_height="30dp"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+    <TextView
+        android:id="@+id/Renglon3"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/Renglon4"
-            android:layout_width="fill_parent"
-            android:layout_height="30dp"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/Renglon4"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>

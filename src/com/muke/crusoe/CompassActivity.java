@@ -46,28 +46,26 @@ public class CompassActivity extends Activity {
 			L.setAccuracy(intent.getFloatExtra("ACCURACY", (float)0.0));
 			L.setLatitude(intent.getDoubleExtra("LATITUD", 0.0));
 			L.setLongitude(intent.getDoubleExtra("LONGITUD", 0.0));
-			float angle = mLocation.bearingTo(L);
-			rotate = new RotateAnimation(bearing, angle, compassView.getWidth()/2, compassView.getHeight()/2);
+			float angle = intent.getFloatExtra("COURSE", (float)0.0);//mLocation.bearingTo(L);
+			rotate = new RotateAnimation(bearing, -angle, compassView.getWidth()/2, compassView.getHeight()/2);
 			rotate.setFillAfter(true);
 			rotate.setFillEnabled(true);
 			compassView.startAnimation(rotate);
 			bearing = angle;
 			if(app.gotoWpt==null)
 			{
-				float bear = mLocation.bearingTo(L);
 				txtGoto.setText("GOTO: -");
 				txtDist.setText("DIST: -");
-				txtDir.setText("Dir: " + bear);
+				txtDir.setText("Dir: " + intent.getDoubleExtra("COURSE", 0.0));
 				txtVel.setText("Vel: " + intent.getFloatExtra("SPEED", (float) 0.0));
 			}
 			else
 			{
 				//cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
-				float dist = mLocation.distanceTo(app.gotoWpt);
 				float bear = mLocation.bearingTo(app.gotoWpt);
-				txtGoto.setText(app.gotoWpt.getName());
-				txtDist.setText("Dist " + dist);
-				txtDir.setText("Dir " + bear);
+				txtGoto.setText(intent.getStringExtra("NAME"));
+				txtDist.setText("Dist " + intent.getFloatExtra("DISTTO", (float)0.0));
+				txtDir.setText("Dir " + intent.getDoubleExtra("BEARING", 0.0));
 				txtVel.setText("Vel " + intent.getFloatExtra("SPEED", (float) 0.0));
 			}
 			mLocation = L;
@@ -124,6 +122,7 @@ public class CompassActivity extends Activity {
 		if(registered==false)
 			this.registerReceiver(mReceiver, intentFilter);
 		registered = true;
-			  
+		compassView = (ImageView)findViewById(R.id.compassImg);
+
 	}
 }

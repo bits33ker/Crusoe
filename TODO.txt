@@ -10,7 +10,7 @@ RESOURCES:
 VERSIONES:
 0.0.0.1: Primer version en github. Solo muestra datos y posee goto.
 0.0.0.2: Version con Compass.
-0.0.0.3: Actual. 
+0.0.0.3:  
 	Unificar actividades DATA y GOTO_DATA. OK.
 	Se creo la carpeta Crusoe/Waypoints para Rutas y Waypoints. OK
 	Se creo la carpeta Tracks para los tracks. OK
@@ -21,7 +21,12 @@ VERSIONES:
 	Se creo RoutePoint que contiene el nombre de la ruta y los waypoints.
 	Falta el manejo de Rutas y GotoWpt en la CompassActivity.			
 		(Ver carpeta C:\Users\Eugenio\Documents\Waypoints). 
-
+0.0.0.4: Actual.
+	Corregir los datos que se presentan en cada actividad.
+	Ver cuando se selecciona una ruta que pase de waypoint en waypoint (secuencia de GOTO's).
+	En tracking, que cada goto sea una secuencia. Agregar tiempo a cada trkpt.
+	Corregir tamaño de display. 2,8" QVGA (240 x 320 pxs.)
+	Mostrar latitud y longitud en format DMS.
 ROADMAP:
 +	TRACKING: poder guardar el movimiento realizado.
 +	WAYPOINTS: poder importar waypoints de (http://www.cibernautica.com.ar/derrote/cargarcolonia.htm).

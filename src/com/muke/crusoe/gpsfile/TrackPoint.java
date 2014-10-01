@@ -32,6 +32,16 @@ public class TrackPoint {
 		TrackSegment s = segments.get(segments.size()-1);
 		s.locations.add(l);
 	}
+	public Location FirstLocation()
+	{
+		if(segments!=null)
+		{
+			if(segments.get(0).Locations().size()==0)
+				return null;
+			return (Location)segments.get(0).Locations().toArray()[0];
+		}
+		return null;
+	}
 	public void StopSegment()
 	{
 		
