@@ -47,6 +47,7 @@ public final class CrusoeApplication extends Application implements Runnable{
 	public RoutePoint ruta_seguir= null;//ruta a seguir
 	public Location lastWpt = null;
 	public TrackPoint track =  new TrackPoint();
+	double recorrido=0;//distancia recorrida en mts
 	public void SaveTrack()
 	{
 		try {
@@ -199,16 +200,20 @@ public final class CrusoeApplication extends Application implements Runnable{
                 	}
                 	else
                 	{
-                		if(lastWpt.distanceTo(loc)>=50.0)
+                		double d = lastWpt.distanceTo(loc); 
+                		if(d>=25.0)
+                		{
                 			track.AddLocation(loc);
+                			recorrido +=d;
+                		}
                 	}
                 	if(gotoWpt!=null)
                 	{
                 		//si se acerca a mas de 50 mts y luego se aleja 100 asumo que llegó al Waypoint
                 		float dist = gotoWpt.distanceTo(loc);
-                		if(dist<50)
+                		if(dist<100)
                 			bcerca = true;
-                		if(dist==0 || (dist>100 && bcerca==true))
+                		if(dist==0 || (dist>200 && bcerca==true))
                 		{
                 			gotoWpt = null;
                 			bcerca = false;//llegó y se está alejando
@@ -231,41 +236,87 @@ public final class CrusoeApplication extends Application implements Runnable{
                 	
                 	//debo agregar a intent los datos de Location
                 	if(gotoWpt!=null)
-                	{                	
+                	{
+                		float distto=loc.distanceTo(gotoWpt);
                 		t.putExtra("NAME", gotoWpt.getName());
-                		t.putExtra("DISTTO", loc.distanceTo(gotoWpt));
+                		if(distto>1000)
+                		{
+                			t.putExtra("DISTTO", String.format("%.2f KM", distto/1000));
+                		}
+                		else
+                		{
+                			t.putExtra("DISTTO", String.format("%d mts", (int)distto));
+                		}
                 	}
-                	float dist = loc.distanceTo(track.FirstLocation());
-                	t.putExtra("TRACK", dist);//recorrido
-                	t.putExtra("LATITUD", loc.getLatitude());
-                	t.putExtra("LONGITUD", loc.getLongitude());
-                	Date d = new Date(System.currentTimeMillis()-tinicio);//hora local
-                	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");                	
-                	t.putExtra("TRANSCURRIDO", sdf.format(d));
-                	float tiempo = 1000*dist;
+            		if(recorrido>1000.0)
+            		{
+            			//t.putExtra("DISTTO", String.format("%.2f KM", distto/1000));
+                    	t.putExtra("TRAVELLED", String.format("%.2f KM", recorrido/1000));//recorrido
+            		}
+            		else
+            		{
+            			//t.putExtra("DISTTO", String.format("%d mts", (int)distto));
+                    	t.putExtra("TRAVELLED", String.format("%d mts", (int)recorrido));//recorrido
+            		}
+                	t.putExtra("LATITUD", loc.convert(loc.getLatitude(), loc.FORMAT_SECONDS));
+                	t.putExtra("LONGITUD", loc.convert(loc.getLongitude(), loc.FORMAT_SECONDS));
+                	if(System.currentTimeMillis()>=tinicio)
+                	{
+                		long tiempo = System.currentTimeMillis() - tinicio;
+                    	SimpleDateFormat sdf=null;
+                    	if(tiempo>=3600)
+                    		sdf = new SimpleDateFormat("HH:mm:ss");
+                    	else
+                    	{
+                    		if(tiempo>60)
+                    			sdf = new SimpleDateFormat("mm:ss");
+                    		else
+                    			sdf = new SimpleDateFormat("ss");
+                    	}
+                		t.putExtra("TRANSCURRIDO", sdf.format(new Date((long)tiempo)));
+                	}
                 	if(loc.getSpeed()>0)
-                		t.putExtra("ETA", sdf.format(tiempo/loc.getSpeed()));//tiempo estimado de arrivo
+                	{
+                    	double tiempo = (double)recorrido/loc.getSpeed();
+                    	SimpleDateFormat sdf=null;
+                    	if(tiempo>=3600)
+                    		sdf = new SimpleDateFormat("HH:mm:ss");
+                    	else
+                    	{
+                    		if(tiempo>60)
+                    			sdf = new SimpleDateFormat("mm:ss");
+                    		else
+                    			sdf = new SimpleDateFormat("ss");
+                    	}
+                		t.putExtra("ETA", sdf.format(new Date((long)tiempo*1000)));//tiempo estimado de arrivo
+                	}
                 	else
-                		t.putExtra("ETA", "INF");//tiempo estimado de arrivo
+                		t.putExtra("ETA", "-");//tiempo estimado de arrivo
                 	if(loc.hasAltitude())
                 		t.putExtra("ELEVACION", loc.getAltitude());//mts sobre el nivel del mar
                 	if(loc.hasAccuracy())
                 		t.putExtra("ACCURACY", loc.getAccuracy());
                 	if(loc.hasBearing())
                 	{
-                		t.putExtra("COURSE", loc.getBearing());//0-360. direccion actual
+                		t.putExtra("COURSE", loc.convert(loc.getBearing(), loc.FORMAT_SECONDS));//0-360. direccion actual
                 		if(gotoWpt!=null)
                 			t.putExtra("BEARING", loc.bearingTo(gotoWpt));//direccion al punto
                 	}
                     if(loc.hasSpeed())
                     {//esta en mts/seg.
                     	double speed = loc.getSpeed()*3.6;
-                    	t.putExtra("SPEED", speed);//*3600/1000 -> KM/h
+                    	t.putExtra("SPEED", String.format("%.2f KMh", speed));//*3600/1000 -> KM/h
+                    }
+                    else
+                    {
+                    	double speed = (loc.distanceTo(lastWpt)*3600)/(loc.getTime() - lastWpt.getTime());                    	
+                    	t.putExtra("SPEED", String.format("%.2f KMh", speed));
                     }
                     t.putExtra("PROVIDER", loc.getProvider());
     				sendBroadcast(t);
                 	//File root = Environment.getExternalStorageDirectory();    
                     first_loc=false;
+                    lastWpt = loc;
                 }
                 catch(Exception e)
                 {

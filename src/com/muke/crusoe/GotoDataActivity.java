@@ -92,25 +92,27 @@ public class GotoDataActivity extends Activity {
 			
 			if(app.gotoWpt==null)
 			{
-				txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
-				txtLong.setText("Long: " + intent.getDoubleExtra("LONGITUD", 0.0));
+				//txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
+				//txtLong.setText("Long: " + intent.getDoubleExtra("LONGITUD", 0.0));
+				txtLat.setText("LAT: " + intent.getStringExtra("LATITUD"));
+				txtLong.setText("LON: " + intent.getStringExtra("LONGITUD"));
 				txtAcc.setText("Time: " + intent.getDoubleExtra("TRANSCURRIDO", 0.0));
-				txtDir.setText("Dir: " + intent.getDoubleExtra("COURSE", 0.0));
-				txtVel.setText("Vel: " + intent.getFloatExtra("SPEED", (float) 0.0));
+				txtDir.setText("Dir: " + intent.getStringExtra("COURSE"));
+				txtVel.setText("Vel: " + intent.getStringExtra("SPEED"));
+				txtDist.setText("DIST " + intent.getStringExtra("TRAVELLED"));
 			}
 			else
 			{
 				//cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
 				txtGoto.setText(intent.getStringExtra("NAME"));
-				txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
-				txtLong.setText("Long " + intent.getDoubleExtra("LONGITUD", 0.0));
-				txtDist.setText("Dist " + intent.getFloatExtra("DISTTO", (float)0.0));
-				txtDir.setText("ETA " + intent.getFloatExtra("ETA", (float)0.0));
-				txtVel.setText("Vel " + intent.getFloatExtra("SPEED", (float) 0.0));
+				//txtLat.setText("Lat: " + intent.getDoubleExtra("LATITUD", 0.0));
+				//txtLong.setText("Long " + intent.getDoubleExtra("LONGITUD", 0.0));
+				txtLat.setText("LAT: " + intent.getStringExtra("LATITUD"));
+				txtLong.setText("LON: " + intent.getStringExtra("LONGITUD"));
+				txtDist.setText("DIST " + intent.getStringExtra("TRAVELLED"));
+				txtDir.setText("ETA " + intent.getStringExtra("ETA"));
+				txtVel.setText("Vel " + intent.getStringExtra("SPEED"));
 			}
-	        //Toast.makeText(context, 
-	        //        "BROADCAST RECEIVER", 
-	        //        Toast.LENGTH_LONG).show();
 			
 		}
 	};
@@ -251,14 +253,36 @@ public class GotoDataActivity extends Activity {
     			}
     			if(i<app.routes.size())
     			{
-    				RoutePoint R = app.routes.get(i);
-    				app.ruta_seguir = new RoutePoint(R.getName()); 
-					app.ruta_seguir.addAll(R.Locations());
-					app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
-					app.ruta_seguir.Locations().remove(app.gotoWpt);
-					app.track.StartSegment();
-					InitializeGotoUI();								
-					txtGoto.setText(app.gotoWpt.getName());
+    				String action = data.getStringExtra("ACTION");
+    				if(action.compareTo("DELETE")==0)
+    				{
+    					app.routes.remove(i);
+    					return;
+    				}
+    				if(action.compareTo("ACTIVE")==0)
+    				{
+    					boolean invertir = (data.getStringExtra("INVERT").compareTo("YES")==0); 
+    					RoutePoint R = app.routes.get(i);
+    					if(invertir)
+    					{
+    						app.ruta_seguir = new RoutePoint(R.getName() + " INV");
+    						//app.ruta_seguir.addAll(R.Locations());
+    						for(WayPoint w : R.Locations())
+    						{
+    							app.ruta_seguir.insWayPoint(0, w);
+    						}
+    					}
+    					else
+    					{
+    						app.ruta_seguir = new RoutePoint(R.getName());
+    						app.ruta_seguir.addAll(R.Locations());
+    					}
+						app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
+						app.ruta_seguir.Locations().remove(app.gotoWpt);
+						app.track.StartSegment();
+						InitializeGotoUI();								
+						txtGoto.setText(app.gotoWpt.getName());
+    				}
     			}
     		}
     	}
@@ -267,6 +291,21 @@ public class GotoDataActivity extends Activity {
     		if(resultCode==RESULT_OK)
     		{
     			String res = data.getStringExtra("RESULT");
+    			app.gotoWpt = null;
+    			if(app.ruta_seguir!=null)
+    			{
+    				while(app.ruta_seguir.Locations().size()>0)
+    				{
+						app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
+						if(res.compareTo(app.gotoWpt.getName())==0)
+						{
+							app.track.StopSegment();
+							app.track.StartSegment();
+							return;
+						}
+						app.ruta_seguir.Locations().remove(app.gotoWpt);
+    				}
+    			}
     			app.gotoWpt = null;
     			for(RoutePoint r: app.routes)
     			{
@@ -304,9 +343,9 @@ public class GotoDataActivity extends Activity {
 					GpxWriter csv = new GpxWriter(gpxfile);
 					csv.writeHeader();
 					int i=0;
-					while(i<app.getRoute("waypoints").Locations().size())
+					while(i<ruta.Locations().size())
 					{
-						csv.writeWaypoint(app.getRoute("waypoints").getWayPoint(i));
+						csv.writeWaypoint(ruta.getWayPoint(i));
 						i++;
 					}
 					csv.writeFooter();
@@ -399,6 +438,7 @@ public class GotoDataActivity extends Activity {
     			}
 				Intent gotoIntent = new Intent(this, GotoActivity.class);
 				gotoIntent.putExtra("NAMES", param);
+				gotoIntent.putExtra("TYPE", "GOTO");
 				this.startActivityForResult(gotoIntent, GotoRC);
     		}
     		else
@@ -424,6 +464,7 @@ public class GotoDataActivity extends Activity {
     				}
 					Intent routeIntent = new Intent(this, GotoActivity.class);
 					routeIntent.putExtra("NAMES", param);
+					routeIntent.putExtra("TYPE", "ROUTE");
 					this.startActivityForResult(routeIntent, RouteRC);
     			}
     			else

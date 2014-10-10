@@ -24,7 +24,7 @@ public class CompassActivity extends Activity {
 	TextView txtDir;
 	TextView txtDist;
 	private class CrusoeLocationReceiver extends BroadcastReceiver{
-		WayPoint mLocation = null;//posicion actual
+		//WayPoint mLocation = null;//posicion actual
 		float bearing = 0;//bearing actual
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -34,6 +34,7 @@ public class CompassActivity extends Activity {
 			
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
 			RotateAnimation rotate = null;
+			/*
 			if(!(mLocation!=null))
 			{
 				mLocation = new WayPoint("", "", intent.getExtras().getString("PROVIDER"));
@@ -41,13 +42,13 @@ public class CompassActivity extends Activity {
 				mLocation.setLatitude(intent.getDoubleExtra("LATITUD", 0.0));
 				mLocation.setLongitude(intent.getDoubleExtra("LONGITUD", 0.0));
 				return;
-			}
+			}*/
 			WayPoint L = new WayPoint("", "", intent.getExtras().getString("PROVIDER"));
 			L.setAccuracy(intent.getFloatExtra("ACCURACY", (float)0.0));
 			L.setLatitude(intent.getDoubleExtra("LATITUD", 0.0));
 			L.setLongitude(intent.getDoubleExtra("LONGITUD", 0.0));
 			float angle = intent.getFloatExtra("COURSE", (float)0.0);//mLocation.bearingTo(L);
-			rotate = new RotateAnimation(bearing, -angle, compassView.getWidth()/2, compassView.getHeight()/2);
+			rotate = new RotateAnimation(-bearing, -angle, compassView.getWidth()/2, compassView.getHeight()/2);
 			rotate.setFillAfter(true);
 			rotate.setFillEnabled(true);
 			compassView.startAnimation(rotate);
@@ -56,19 +57,19 @@ public class CompassActivity extends Activity {
 			{
 				txtGoto.setText("GOTO: -");
 				txtDist.setText("DIST: -");
-				txtDir.setText("Dir: " + intent.getDoubleExtra("COURSE", 0.0));
-				txtVel.setText("Vel: " + intent.getFloatExtra("SPEED", (float) 0.0));
+				txtDir.setText("Dir: " + intent.getStringExtra("COURSE"));
+				txtVel.setText("Vel: " + intent.getStringExtra("SPEED"));
 			}
 			else
 			{
 				//cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
-				float bear = mLocation.bearingTo(app.gotoWpt);
+				//float bear = mLocation.bearingTo(app.gotoWpt);
 				txtGoto.setText(intent.getStringExtra("NAME"));
-				txtDist.setText("Dist " + intent.getFloatExtra("DISTTO", (float)0.0));
-				txtDir.setText("Dir " + intent.getDoubleExtra("BEARING", 0.0));
-				txtVel.setText("Vel " + intent.getFloatExtra("SPEED", (float) 0.0));
+				txtDist.setText("Dist " + intent.getStringExtra("DISTTO"));
+				txtDir.setText("Dir " + intent.getFloatExtra("BEARING", (float)0.0));
+				txtVel.setText("Vel " + intent.getStringExtra("SPEED"));
 			}
-			mLocation = L;
+			//mLocation = L;
 			
 		}
 

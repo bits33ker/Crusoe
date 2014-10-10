@@ -19,6 +19,10 @@ public class RoutePoint {
 	{
 		waypoints.add(p);
 	}
+	public void insWayPoint(int pos, WayPoint p)
+	{
+		waypoints.add(pos,  p);
+	}
 	public WayPoint getWayPoint(int i)
 	{
 		return waypoints.get(i);
