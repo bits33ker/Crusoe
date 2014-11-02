@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Crusoe</string>
+    <string name="app_name">CrusoeNav</string>
     <string name="action_settings">Configuracion</string>
     <string name="action_mark">Marca</string>
     <string name="action_map">Mapas</string>
@@ -25,4 +25,11 @@
     <string name="error_gps_pos">GPS no se encuentra en posicion</string>
     <string name="error_no_wpt">No hay Waypoints almacenados</string>
     <string name="error_no_routes">No hay Rutas almacenadas</string>
+    <string name="action_activar">Activar</string>
+    <string name="action_invertir">Invertir</string>
+    <string name="action_distancia">Distancia</string>
+    <string name="action_agregar">Agregar</string>
+    <string name="action_editar">Editar</string>
+    <string name="action_borrar">Borrar</string>
+    <string name="gps_track_saved">waypoints guardados</string>
 </resources>

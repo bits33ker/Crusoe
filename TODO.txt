@@ -21,20 +21,31 @@ VERSIONES:
 	Se creo RoutePoint que contiene el nombre de la ruta y los waypoints.
 	Falta el manejo de Rutas y GotoWpt en la CompassActivity.			
 		(Ver carpeta C:\Users\Eugenio\Documents\Waypoints). 
-0.0.0.4: Actual.
+0.0.0.4: 
 	Corregir los datos que se presentan en cada actividad.
 	Ver cuando se selecciona una ruta que pase de waypoint en waypoint (secuencia de GOTO's).
 	En tracking, que cada goto sea una secuencia. Agregar tiempo a cada trkpt.
 	Corregir tamaño de display. 2,8" QVGA (240 x 320 pxs.)
 	Mostrar latitud y longitud en format DMS.
+0.0.0.6: Actual
+	Version con Fragment para datos y compass.
+	Restaurar el movimiento del compass.
+	Ver que el compass en Portrait y Landscape tenga el mismo tamaño.
+	Mejorar la presentacion de datos en ambas vistas.
+	Vista Datos: datos de posicion actual
+		Latitud, Longitud, distancia recorrida, tiempo recorrido, Velocidad.
+	Vista Compass
+		GOTO, distancia al Wpt, ETA, Velocidad, Bearing.	
 ROADMAP:
-+	TRACKING: poder guardar el movimiento realizado.
++	TRACKING: poder guardar el movimiento realizado. OK.
++	DIRECTORIOS: Crear directorio CRUSOE, y directorios para Waypoints, Rutas y Tracking. OK
++	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo. OK
+
 +	WAYPOINTS: poder importar waypoints de (http://www.cibernautica.com.ar/derrote/cargarcolonia.htm).
-+	DIRECTORIOS: Crear directorio CRUSOE, y directorios para Waypoints, Rutas y Tracking.
 +	RUTAS: Creación de  rutas.
-+	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo.
 +	Versiones para distintos modelos y tamaños de Android.
-+	MAPAS : poder visualizar mapas.
++	MAPAS : Fragment. poder visualizar mapas.
++	ESTADISTICAS: Fragment. Poder ver los tiempos de cada pierna, distancias, ...
 +	SATELITES: Visualizacion de Satelites.
 +	TRAYECTO: XML que indica un trayecto seguido.
 +	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.

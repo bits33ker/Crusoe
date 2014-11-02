@@ -3,41 +3,46 @@
     android:id="@+id/compass"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/background_color"
     android:orientation="vertical" >
 
     <ImageView
         android:id="@+id/compassImg"
-        android:layout_width="211dp"
-        android:layout_height="155dp"
+        android:layout_width="fill_parent"
+        android:layout_height="188dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/compass2" />
+        android:src="@drawable/compass3" />
 
     <TextView
         android:id="@+id/Renglon1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
 
     <TextView
         android:id="@+id/Renglon2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
 
     <TextView
         android:id="@+id/Renglon3"
         android:layout_width="fill_parent"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
 
     <TextView
         android:id="@+id/Renglon4"
         android:layout_width="fill_parent"
         android:layout_height="30dp"
         android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
+        android:textAppearance="?android:attr/textAppearanceLarge"
+       	android:textSize="@dimen/PosicionDimension" />
+    
 </LinearLayout>

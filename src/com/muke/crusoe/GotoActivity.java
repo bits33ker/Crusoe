@@ -90,7 +90,7 @@ public class GotoActivity extends ListActivity{
        	returnIntent.putExtra("RESULT",res);
        	setResult(RESULT_OK,returnIntent);
     	switch (item.getItemId()) {
-    	case R.id.action_activar:
+    	case R.id.action_goto:
            	Log.i(type, res);
        		returnIntent.putExtra("ACTION","ACTIVE");
        		returnIntent.putExtra("INVERT","NO");

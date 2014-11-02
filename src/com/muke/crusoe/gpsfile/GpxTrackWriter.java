@@ -206,7 +206,7 @@ public class GpxTrackWriter implements TrackFormatWriter {
       pw.println("</trk>");
     }
   }
-  public void writeSegment(TrackSegment s)
+  public int writeSegment(TrackSegment s)
   {
 	  if(pw!=null)
 	  {
@@ -218,6 +218,7 @@ public class GpxTrackWriter implements TrackFormatWriter {
 		  }
 		  writeCloseSegment();
 	  }
+	  return s.locations.size();
   }
 	
   public void writeOpenSegment() {

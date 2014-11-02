@@ -33,7 +33,7 @@ import android.widget.Toast;
 //esta clase de llama solo una vez, a diferencia de Activity que se reinicia cuando roto el telefono
 public final class CrusoeApplication extends Application implements Runnable{
 
-	public static final String CRUSOE_LOCATION_INTENT = "com.muke.crusoe.Crusoe";
+	public static final String CRUSOE_LOCATION_INTENT = "com.muke.crusoe.Location";
 	public static enum thread_status{
 		thStart,
 		thRun,
@@ -42,14 +42,17 @@ public final class CrusoeApplication extends Application implements Runnable{
 	public ArrayList<RoutePoint>routes = new ArrayList<RoutePoint>();
 	//lista de waypoints
 	//public ArrayList<WayPoint> waypoints = new ArrayList<WayPoint>();
+  	boolean first_loc=true;
+  	long tinicio = 0;//tiempo inicial
 	boolean bcerca=false;//indica si se encuentra cerca del waypoint
 	public WayPoint gotoWpt = null;
 	public RoutePoint ruta_seguir= null;//ruta a seguir
 	public Location lastWpt = null;
 	public TrackPoint track =  new TrackPoint();
 	double recorrido=0;//distancia recorrida en mts
-	public void SaveTrack()
+	public int SaveTrack()
 	{
+		int locs=0;
 		try {
 			File TracksDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Tracks");
 	        if(!TracksDir.isDirectory())
@@ -68,7 +71,7 @@ public final class CrusoeApplication extends Application implements Runnable{
 				gpx.writeBeginTrack("TRACK");
 			for(TrackSegment s:track.Segments())
 			{
-				gpx.writeSegment(s);
+				locs +=gpx.writeSegment(s);
 			}
 			gpx.writeEndTrack();
 			gpx.writeFooter();
@@ -78,6 +81,7 @@ public final class CrusoeApplication extends Application implements Runnable{
 		{
 			Log.i("ERROR", e.getMessage());
 		}
+		return locs;
 	}
 	public void CargoWayPoints()
 	{
@@ -165,8 +169,6 @@ public final class CrusoeApplication extends Application implements Runnable{
 
 	private class CrusoeLocationListener implements LocationListener
 	{
-	  	boolean first_loc=true;
-	  	long tinicio = 0;//tiempo inicial
 	    
 		@Override
 		public void onLocationChanged(Location loc) {
@@ -184,15 +186,17 @@ public final class CrusoeApplication extends Application implements Runnable{
         	 */
 			if(loc==null)
 				return;
-            if (first_loc==true) {
-            	tinicio = System.currentTimeMillis();
-                Toast.makeText(getBaseContext(), 
-                    getResources().getString(R.string.gps_signal_found), 
-                    Toast.LENGTH_SHORT).show();
-                
-            }
+			long tiempo=0;
  
                 try { 
+                    if (first_loc==true) {
+                    	tinicio = System.currentTimeMillis();
+                        Toast.makeText(getBaseContext(), 
+                            getResources().getString(R.string.gps_signal_found), 
+                            Toast.LENGTH_SHORT).show();
+                        
+                    }
+                    double rec = 0;
                 	if(!(lastWpt!=null))
                 	{                	
                 		lastWpt = loc;
@@ -200,11 +204,13 @@ public final class CrusoeApplication extends Application implements Runnable{
                 	}
                 	else
                 	{
-                		double d = lastWpt.distanceTo(loc); 
-                		if(d>=25.0)
+                		rec = lastWpt.distanceTo(loc); 
+                		if(rec>=25.0)
                 		{
                 			track.AddLocation(loc);
-                			recorrido +=d;
+                			recorrido +=rec;
+                			if(recorrido<0)recorrido=0;
+                            lastWpt = loc;
                 		}
                 	}
                 	if(gotoWpt!=null)
@@ -232,7 +238,7 @@ public final class CrusoeApplication extends Application implements Runnable{
                 		
                 		
                 	Intent t = new Intent();
-                	t.setAction("com.muke.crusoe.Crusoe");
+                	t.setAction(CrusoeApplication.CRUSOE_LOCATION_INTENT);
                 	
                 	//debo agregar a intent los datos de Location
                 	if(gotoWpt!=null)
@@ -258,11 +264,16 @@ public final class CrusoeApplication extends Application implements Runnable{
             			//t.putExtra("DISTTO", String.format("%d mts", (int)distto));
                     	t.putExtra("TRAVELLED", String.format("%d mts", (int)recorrido));//recorrido
             		}
-                	t.putExtra("LATITUD", loc.convert(loc.getLatitude(), loc.FORMAT_SECONDS));
-                	t.putExtra("LONGITUD", loc.convert(loc.getLongitude(), loc.FORMAT_SECONDS));
+                	t.putExtra("LATITUD", loc.getLatitude());//loc.convert(loc.getLatitude(), loc.FORMAT_MINUTES));
+                	t.putExtra("LONGITUD", loc.getLongitude());//loc.convert(loc.getLongitude(), loc.FORMAT_MINUTES));
                 	if(System.currentTimeMillis()>=tinicio)
                 	{
-                		long tiempo = System.currentTimeMillis() - tinicio;
+                		tiempo = System.currentTimeMillis() - tinicio;
+                		if(tiempo<0)
+                		{
+                			tinicio = System.currentTimeMillis();
+                			tiempo=0;
+                		}
                     	SimpleDateFormat sdf=null;
                     	if(tiempo>=3600)
                     		sdf = new SimpleDateFormat("HH:mm:ss");
@@ -277,18 +288,18 @@ public final class CrusoeApplication extends Application implements Runnable{
                 	}
                 	if(loc.getSpeed()>0)
                 	{
-                    	double tiempo = (double)recorrido/loc.getSpeed();
+                    	double eta = (double)recorrido/loc.getSpeed();
                     	SimpleDateFormat sdf=null;
-                    	if(tiempo>=3600)
+                    	if(eta>=3600)
                     		sdf = new SimpleDateFormat("HH:mm:ss");
                     	else
                     	{
-                    		if(tiempo>60)
+                    		if(eta>60)
                     			sdf = new SimpleDateFormat("mm:ss");
                     		else
                     			sdf = new SimpleDateFormat("ss");
                     	}
-                		t.putExtra("ETA", sdf.format(new Date((long)tiempo*1000)));//tiempo estimado de arrivo
+                		t.putExtra("ETA", sdf.format(new Date((long)eta*1000)));//tiempo estimado de arrivo
                 	}
                 	else
                 		t.putExtra("ETA", "-");//tiempo estimado de arrivo
@@ -298,7 +309,7 @@ public final class CrusoeApplication extends Application implements Runnable{
                 		t.putExtra("ACCURACY", loc.getAccuracy());
                 	if(loc.hasBearing())
                 	{
-                		t.putExtra("COURSE", loc.convert(loc.getBearing(), loc.FORMAT_SECONDS));//0-360. direccion actual
+                		t.putExtra("COURSE", loc.getBearing());//0-360. direccion actual
                 		if(gotoWpt!=null)
                 			t.putExtra("BEARING", loc.bearingTo(gotoWpt));//direccion al punto
                 	}
@@ -309,14 +320,20 @@ public final class CrusoeApplication extends Application implements Runnable{
                     }
                     else
                     {
-                    	double speed = (loc.distanceTo(lastWpt)*3600)/(loc.getTime() - lastWpt.getTime());                    	
+                    	double speed = (rec*3600)/(loc.getTime() - lastWpt.getTime());                    	
                     	t.putExtra("SPEED", String.format("%.2f KMh", speed));
                     }
                     t.putExtra("PROVIDER", loc.getProvider());
     				sendBroadcast(t);
                 	//File root = Environment.getExternalStorageDirectory();    
                     first_loc=false;
-                    lastWpt = loc;
+                }
+                catch(IllegalArgumentException a)
+                {
+                	Toast.makeText(getBaseContext(), 
+                			"Illegal Argument " + 
+                					String.format("%.2f %.2f %d %t", loc.getLatitude(),loc.getLongitude(), recorrido, tiempo), 
+                			Toast.LENGTH_LONG).show();
                 }
                 catch(Exception e)
                 {

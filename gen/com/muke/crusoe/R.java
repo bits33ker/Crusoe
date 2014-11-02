@@ -11,57 +11,67 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int background_color=0x7f040002;
         public static final int default_color=0x7f040001;
         public static final int pressed_color=0x7f040000;
     }
     public static final class dimen {
+        public static final int PosicionDimension=0x7f050002;
         /**  Default screen margins, per the Android Design guidelines. 
          */
         public static final int activity_horizontal_margin=0x7f050000;
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int bg_key=0x7f020000;
-        public static final int compass=0x7f020001;
-        public static final int compass2=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
-        public static final int rose=0x7f020004;
+        public static final int arrow=0x7f020000;
+        public static final int bg_key=0x7f020001;
+        public static final int compass=0x7f020002;
+        public static final int compass2=0x7f020003;
+        public static final int compass3=0x7f020004;
+        public static final int crusoesail1=0x7f020005;
+        public static final int ic_launcher=0x7f020006;
+        public static final int rose=0x7f020007;
     }
     public static final class id {
-        public static final int Renglon1=0x7f090002;
-        public static final int Renglon2=0x7f090003;
-        public static final int Renglon3=0x7f090004;
-        public static final int Renglon4=0x7f090005;
-        public static final int Renglon5=0x7f090007;
-        public static final int Renglon6=0x7f090008;
-        public static final int action_activar=0x7f090015;
-        public static final int action_agregar=0x7f09001a;
-        public static final int action_borrar=0x7f090018;
-        public static final int action_compass=0x7f090014;
-        public static final int action_distancia=0x7f090016;
-        public static final int action_editar=0x7f090017;
-        public static final int action_goto=0x7f090013;
-        public static final int action_invertir=0x7f090019;
-        public static final int action_mark=0x7f09000f;
-        public static final int action_quit=0x7f090011;
-        public static final int action_route=0x7f090010;
-        public static final int action_settings=0x7f09000e;
-        public static final int action_track=0x7f090012;
-        public static final int compass=0x7f090000;
-        public static final int compassImg=0x7f090001;
-        public static final int compass_land=0x7f090006;
-        public static final int editWpt=0x7f09000a;
-        public static final int txtAcc=0x7f09000d;
-        public static final int txtLat=0x7f09000c;
-        public static final int txtLong=0x7f09000b;
-        public static final int txtWpt=0x7f090009;
+        public static final int Renglon1=0x7f090003;
+        public static final int Renglon2=0x7f090004;
+        public static final int Renglon3=0x7f090005;
+        public static final int Renglon4=0x7f090006;
+        public static final int action_agregar=0x7f09001d;
+        public static final int action_borrar=0x7f09001b;
+        public static final int action_distancia=0x7f090019;
+        public static final int action_editar=0x7f09001a;
+        public static final int action_goto=0x7f090018;
+        public static final int action_invertir=0x7f09001c;
+        public static final int action_mark=0x7f090014;
+        public static final int action_quit=0x7f090016;
+        public static final int action_route=0x7f090015;
+        public static final int action_settings=0x7f090013;
+        public static final int action_track=0x7f090017;
+        public static final int compass=0x7f090001;
+        public static final int compassImg=0x7f090002;
+        public static final int compass_land=0x7f090007;
+        public static final int dist=0x7f09000d;
+        public static final int editWpt=0x7f09000f;
+        public static final int latitud=0x7f090009;
+        public static final int longitud=0x7f09000b;
+        public static final int recorrido=0x7f09000a;
+        public static final int tiempo=0x7f09000c;
+        public static final int txtAcc=0x7f090012;
+        public static final int txtLat=0x7f090011;
+        public static final int txtLong=0x7f090010;
+        public static final int txtWpt=0x7f09000e;
+        public static final int viewpager=0x7f090000;
+        public static final int waypoint=0x7f090008;
     }
     public static final class layout {
-        public static final int compass=0x7f030000;
-        public static final int compass_land=0x7f030001;
-        public static final int goto_data=0x7f030002;
-        public static final int goto_view=0x7f030003;
-        public static final int mark=0x7f030004;
+        public static final int activity_main=0x7f030000;
+        public static final int compass=0x7f030001;
+        public static final int compass_land=0x7f030002;
+        public static final int data_land=0x7f030003;
+        public static final int goto_data=0x7f030004;
+        public static final int goto_view=0x7f030005;
+        public static final int mark=0x7f030006;
     }
     public static final class menu {
         public static final int data=0x7f080000;
@@ -97,6 +107,7 @@ public final class R {
         public static final int goto_name=0x7f06000b;
         public static final int gps_signal_found=0x7f060005;
         public static final int gps_signal_not_found=0x7f060006;
+        public static final int gps_track_saved=0x7f06001e;
         public static final int hello_world=0x7f060004;
         public static final int mark_menu_name=0x7f060008;
     }
