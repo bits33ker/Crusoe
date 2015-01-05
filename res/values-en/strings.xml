@@ -25,11 +25,27 @@
     <string name="error_gps_pos">Can\'t find GPS position</string>
     <string name="error_no_wpt">There are no Waypoints stored</string>
     <string name="error_no_routes">There are no Routes stored</string>
-    <string name="action_activar">Activate</string>
-    <string name="action_invertir">Invert</string>
-    <string name="action_distancia">Distance</string>
-    <string name="action_agregar">Add</string>
-    <string name="action_editar">Edit</string>
-    <string name="action_borrar">Remove</string>
+    <string name="action_Agregar">Add</string>
     <string name="gps_track_saved">waypoints saved</string>
+    <string name="DMS">00:00:00</string>
+    <string-array name="GoTo_menues">
+        <item >Activate</item>
+        <item >Invert</item>
+        <item >Edit</item>
+    </string-array>
+    <string-array name="Route_menues">
+        <item >Activate</item>
+        <item >Invert</item>
+        <item>Delete</item>
+        <item >Edit</item>        
+    </string-array>
+    <string-array name="Route_Edit_menues">
+        <item>Add</item>
+        <item>Delete</item>
+        <item >Edit</item>        
+    </string-array>
+    <string name="NotImplemented">Not implemented yet</string>
+    <string name="RouteNotExist">The Route selected doesnt exist</string>
+    <string name="wpt_name">WayPoint</string>
+    <string name="msg_approach">Approaching to </string>
 </resources>

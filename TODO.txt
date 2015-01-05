@@ -27,15 +27,19 @@ VERSIONES:
 	En tracking, que cada goto sea una secuencia. Agregar tiempo a cada trkpt.
 	Corregir tamaño de display. 2,8" QVGA (240 x 320 pxs.)
 	Mostrar latitud y longitud en format DMS.
-0.0.0.6: Actual
-	Version con Fragment para datos y compass.
-	Restaurar el movimiento del compass.
-	Ver que el compass en Portrait y Landscape tenga el mismo tamaño.
+0.1.0.0: 
+	Version con Fragment para datos y compass. OK
+	Restaurar el movimiento del compass. OK
+	Ver que el compass en Portrait y Landscape tenga el mismo tamaño. OK
 	Mejorar la presentacion de datos en ambas vistas.
-	Vista Datos: datos de posicion actual
+	Vista Datos: datos de posicion actual OK
 		Latitud, Longitud, distancia recorrida, tiempo recorrido, Velocidad.
 	Vista Compass
-		GOTO, distancia al Wpt, ETA, Velocidad, Bearing.	
+		GOTO, distancia al Wpt, ETA, Velocidad, Bearing.
+0.1.0.1: Actual	
+	Poder agregar Rutas y WayPoints.
+	Que el sistema elija el punta mas cercano de una ruta y se dirija ahí.
+			
 ROADMAP:
 +	TRACKING: poder guardar el movimiento realizado. OK.
 +	DIRECTORIOS: Crear directorio CRUSOE, y directorios para Waypoints, Rutas y Tracking. OK
@@ -44,9 +48,9 @@ ROADMAP:
 +	WAYPOINTS: poder importar waypoints de (http://www.cibernautica.com.ar/derrote/cargarcolonia.htm).
 +	RUTAS: Creación de  rutas.
 +	Versiones para distintos modelos y tamaños de Android.
-+	MAPAS : Fragment. poder visualizar mapas.
 +	ESTADISTICAS: Fragment. Poder ver los tiempos de cada pierna, distancias, ...
 +	SATELITES: Visualizacion de Satelites.
++	MAPAS : Fragment. poder visualizar mapas. + adelante
 +	TRAYECTO: XML que indica un trayecto seguido.
 +	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.
 +	WEB: Servidor web donde poder subir las cosas.

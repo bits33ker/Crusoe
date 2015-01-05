@@ -19,6 +19,9 @@ import com.muke.crusoe.gpsfile.*;
 import com.muke.crusoe.gpsfile.TrackPoint.TrackSegment;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -27,6 +30,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.support.v4.app.*;
 import android.text.format.Time;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,6 +38,7 @@ import android.widget.Toast;
 public final class CrusoeApplication extends Application implements Runnable{
 
 	public static final String CRUSOE_LOCATION_INTENT = "com.muke.crusoe.Location";
+	public static final int CRUSOE_LOCATION_NOTIFICATION = 1;
 	public static enum thread_status{
 		thStart,
 		thRun,
@@ -45,7 +50,8 @@ public final class CrusoeApplication extends Application implements Runnable{
   	boolean first_loc=true;
   	long tinicio = 0;//tiempo inicial
 	boolean bcerca=false;//indica si se encuentra cerca del waypoint
-	public WayPoint gotoWpt = null;
+	public WayPoint gotoWpt = null;//wpt a donde me dirijo
+	public WayPoint closeWpt = null;//waypoint cercano
 	public RoutePoint ruta_seguir= null;//ruta a seguir
 	public Location lastWpt = null;
 	public TrackPoint track =  new TrackPoint();
@@ -126,6 +132,52 @@ public final class CrusoeApplication extends Application implements Runnable{
 	    	Log.i("ERROR", e.getMessage());
 	    }
 	}
+	public WayPoint CloseWpt(float dist)
+	{
+		WayPoint wpt = null;
+		for(RoutePoint r: routes)
+		{
+			for(WayPoint w : r.Locations())
+			{
+				float d = lastWpt.distanceTo(w);
+				if(d<dist)
+				{
+					dist = d;
+					wpt = w;
+				}
+			}
+		}
+		return wpt;
+	}
+	public int Closest(RoutePoint ruta, WayPoint wpt)
+	{
+		int i=0, pos=0;
+		WayPoint w = (WayPoint)ruta.Locations().toArray()[i++];
+		float dist = wpt.distanceTo(w);
+		while(i<ruta.Locations().size())
+		{
+			w = (WayPoint)ruta.Locations().toArray()[i++];
+			float d = wpt.distanceTo(w);
+			if(d<dist)
+				pos=i-1;		
+		}
+		return pos;
+	}
+	
+	public WayPoint getWayPoint(String n)
+	{
+		for(RoutePoint r: routes)
+		{
+			for(WayPoint w: r.Locations())
+			{
+				if(n.compareTo(w.getName())==0)
+				{
+					return w;
+				}
+			}
+		}
+		return null;
+	}
 	public RoutePoint getRoute(String n)
 	{
 		for(RoutePoint r: routes)
@@ -166,7 +218,34 @@ public final class CrusoeApplication extends Application implements Runnable{
 		thread = new Thread(this);
 		thread.start();
 	}
+	void sendNotification(WayPoint wpt)
+	{
+		//http://developer.android.com/training/notify-user/build-notification.html
+		Intent resultIntent = new Intent(getApplicationContext(), CrusoeNavActivity.class);
+		// Because clicking the notification opens a new ("special") activity, there's
+		// no need to create an artificial back stack.
+		PendingIntent resultPendingIntent =
+		    PendingIntent.getActivity(
+		    getApplicationContext(),
+		    0,
+		    resultIntent,
+		    PendingIntent.FLAG_UPDATE_CURRENT
+		);                				
+		long[] mVibratePattern = { 0, 200, 200, 300 };
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
+				getApplicationContext())
+		.setContentTitle("CrusoeNav")
+		.setContentText(getResources().getString(R.string.msg_approach) + wpt.getName())
+		.setSmallIcon(R.drawable.crusoesail)
+		.setAutoCancel(true)
+		.setContentIntent(resultPendingIntent)
+		.setVibrate(mVibratePattern);
 
+		// Pass the Notification to the NotificationManager:
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(CRUSOE_LOCATION_NOTIFICATION,
+				notificationBuilder.build());
+	}
 	private class CrusoeLocationListener implements LocationListener
 	{
 	    
@@ -194,7 +273,6 @@ public final class CrusoeApplication extends Application implements Runnable{
                         Toast.makeText(getBaseContext(), 
                             getResources().getString(R.string.gps_signal_found), 
                             Toast.LENGTH_SHORT).show();
-                        
                     }
                     double rec = 0;
                 	if(!(lastWpt!=null))
@@ -211,6 +289,15 @@ public final class CrusoeApplication extends Application implements Runnable{
                 			recorrido +=rec;
                 			if(recorrido<0)recorrido=0;
                             lastWpt = loc;
+                            if(closeWpt==null)
+                            {
+                            	closeWpt = CloseWpt(100);
+                            	if(closeWpt!=null)
+                            		sendNotification(closeWpt);
+                            }
+                            else
+                            	closeWpt = CloseWpt(200);
+                            	
                 		}
                 	}
                 	if(gotoWpt!=null)
@@ -218,7 +305,17 @@ public final class CrusoeApplication extends Application implements Runnable{
                 		//si se acerca a mas de 50 mts y luego se aleja 100 asumo que llegó al Waypoint
                 		float dist = gotoWpt.distanceTo(loc);
                 		if(dist<100)
+                		{
+                			if(!bcerca)
+                			{
+        			            //Toast.makeText(getBaseContext(), 
+        			            //        R.string.msg_approach + gotoWpt.getName(), 
+        			            //        Toast.LENGTH_SHORT).show();
+                				sendNotification(gotoWpt);
+                				
+                			}
                 			bcerca = true;
+                		}
                 		if(dist==0 || (dist>200 && bcerca==true))
                 		{
                 			gotoWpt = null;
@@ -316,12 +413,12 @@ public final class CrusoeApplication extends Application implements Runnable{
                     if(loc.hasSpeed())
                     {//esta en mts/seg.
                     	double speed = loc.getSpeed()*3.6;
-                    	t.putExtra("SPEED", String.format("%.2f KMh", speed));//*3600/1000 -> KM/h
+                    	t.putExtra("SPEED", String.format("%.2f", speed));//*3600/1000 -> KM/h
                     }
                     else
                     {
                     	double speed = (rec*3600)/(loc.getTime() - lastWpt.getTime());                    	
-                    	t.putExtra("SPEED", String.format("%.2f KMh", speed));
+                    	t.putExtra("SPEED", String.format("%.2f", speed));
                     }
                     t.putExtra("PROVIDER", loc.getProvider());
     				sendBroadcast(t);

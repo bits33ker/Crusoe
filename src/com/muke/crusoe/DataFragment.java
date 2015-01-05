@@ -162,7 +162,7 @@ public class DataFragment extends Fragment {
 			txtWpt.setText("GOTO " + n);
 		txtLat.setText( convLat(intent.getDoubleExtra("LATITUD", 0.0)));
 		txtLong.setText(convLong(intent.getDoubleExtra("LONGITUD", 0.0)));
-		txtVel.setText(intent.getStringExtra("SPEED"));
+		txtVel.setText(intent.getStringExtra("SPEED") + " KMh");
 		//txtVel.setText("VEL: " + intent.getStringExtra("SPEED"));
 		txtDist.setText("DIST: " + intent.getStringExtra("TRAVELLED"));
 	}	

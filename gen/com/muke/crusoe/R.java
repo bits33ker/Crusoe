@@ -8,6 +8,11 @@
 package com.muke.crusoe;
 
 public final class R {
+    public static final class array {
+        public static final int GoTo_menues=0x7f070000;
+        public static final int Route_Edit_menues=0x7f070002;
+        public static final int Route_menues=0x7f070001;
+    }
     public static final class attr {
     }
     public static final class color {
@@ -21,95 +26,100 @@ public final class R {
          */
         public static final int activity_horizontal_margin=0x7f050000;
         public static final int activity_vertical_margin=0x7f050001;
+        public static final int itemDimension=0x7f050003;
     }
     public static final class drawable {
-        public static final int arrow=0x7f020000;
-        public static final int bg_key=0x7f020001;
-        public static final int compass=0x7f020002;
-        public static final int compass2=0x7f020003;
-        public static final int compass3=0x7f020004;
-        public static final int crusoesail1=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int rose=0x7f020007;
+        public static final int bg_key=0x7f020000;
+        public static final int compass=0x7f020001;
+        public static final int crusoesail=0x7f020002;
+        public static final int sailboat=0x7f020003;
     }
     public static final class id {
-        public static final int Renglon1=0x7f090003;
-        public static final int Renglon2=0x7f090004;
-        public static final int Renglon3=0x7f090005;
-        public static final int Renglon4=0x7f090006;
-        public static final int action_agregar=0x7f09001d;
-        public static final int action_borrar=0x7f09001b;
-        public static final int action_distancia=0x7f090019;
-        public static final int action_editar=0x7f09001a;
-        public static final int action_goto=0x7f090018;
-        public static final int action_invertir=0x7f09001c;
-        public static final int action_mark=0x7f090014;
-        public static final int action_quit=0x7f090016;
-        public static final int action_route=0x7f090015;
-        public static final int action_settings=0x7f090013;
-        public static final int action_track=0x7f090017;
-        public static final int compass=0x7f090001;
-        public static final int compassImg=0x7f090002;
-        public static final int compass_land=0x7f090007;
-        public static final int dist=0x7f09000d;
-        public static final int editWpt=0x7f09000f;
-        public static final int latitud=0x7f090009;
-        public static final int longitud=0x7f09000b;
-        public static final int recorrido=0x7f09000a;
-        public static final int tiempo=0x7f09000c;
-        public static final int txtAcc=0x7f090012;
-        public static final int txtLat=0x7f090011;
-        public static final int txtLong=0x7f090010;
-        public static final int txtWpt=0x7f09000e;
-        public static final int viewpager=0x7f090000;
-        public static final int waypoint=0x7f090008;
+        public static final int Renglon1=0x7f0a0007;
+        public static final int Renglon2=0x7f0a0008;
+        public static final int Renglon3=0x7f0a0009;
+        public static final int Renglon4=0x7f0a000a;
+        public static final int action_goto=0x7f0a0022;
+        public static final int action_mark=0x7f0a001e;
+        public static final int action_quit=0x7f0a0020;
+        public static final int action_route=0x7f0a001f;
+        public static final int action_settings=0x7f0a001d;
+        public static final int action_track=0x7f0a0021;
+        public static final int btnAdd=0x7f0a0003;
+        public static final int compassView=0x7f0a0005;
+        public static final int compass_land=0x7f0a0004;
+        public static final int compass_port=0x7f0a000b;
+        public static final int editLat=0x7f0a001c;
+        public static final int editLong=0x7f0a001b;
+        public static final int editRoute=0x7f0a0002;
+        public static final int editWpt=0x7f0a0012;
+        public static final int emptylist=0x7f0a0017;
+        public static final int latitud=0x7f0a000d;
+        public static final int longitud=0x7f0a000f;
+        public static final int recorrido=0x7f0a000e;
+        public static final int sailboatImg=0x7f0a0006;
+        public static final int statlist=0x7f0a0016;
+        public static final int tiempo=0x7f0a0010;
+        public static final int txtAcc=0x7f0a0015;
+        public static final int txtLat=0x7f0a0014;
+        public static final int txtLong=0x7f0a0013;
+        public static final int txtRoute=0x7f0a0001;
+        public static final int txtWpt=0x7f0a0011;
+        public static final int viewpager=0x7f0a0000;
+        public static final int waypoint=0x7f0a000c;
+        public static final int wpt_dist=0x7f0a0019;
+        public static final int wpt_eta=0x7f0a001a;
+        public static final int wpt_name=0x7f0a0018;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int compass=0x7f030001;
+        public static final int add_route=0x7f030001;
         public static final int compass_land=0x7f030002;
-        public static final int data_land=0x7f030003;
-        public static final int goto_data=0x7f030004;
-        public static final int goto_view=0x7f030005;
-        public static final int mark=0x7f030006;
+        public static final int compass_port=0x7f030003;
+        public static final int data_land=0x7f030004;
+        public static final int goto_data=0x7f030005;
+        public static final int goto_view=0x7f030006;
+        public static final int mark=0x7f030007;
+        public static final int stat_view=0x7f030008;
+        public static final int stat_wpt=0x7f030009;
+        public static final int waypoint_view=0x7f03000a;
     }
     public static final class menu {
-        public static final int data=0x7f080000;
-        public static final int goto_menu=0x7f080001;
-        public static final int route_menu=0x7f080002;
+        public static final int data=0x7f090000;
     }
     public static final class string {
-        public static final int action_activar=0x7f060018;
-        public static final int action_agregar=0x7f06001b;
-        public static final int action_borrar=0x7f06001d;
-        public static final int action_compass=0x7f06000c;
-        public static final int action_distancia=0x7f06001a;
-        public static final int action_editar=0x7f06001c;
-        public static final int action_goto=0x7f06000a;
-        public static final int action_invertir=0x7f060019;
-        public static final int action_map=0x7f060003;
-        public static final int action_mark=0x7f060002;
-        public static final int action_quit=0x7f060007;
-        public static final int action_route=0x7f06000d;
-        public static final int action_settings=0x7f060001;
-        public static final int action_track=0x7f060009;
-        public static final int app_name=0x7f060000;
-        public static final int data_accuracy=0x7f060012;
-        public static final int data_direction=0x7f060011;
-        public static final int data_distance=0x7f060013;
-        public static final int data_latitud=0x7f06000e;
-        public static final int data_longitud=0x7f06000f;
-        public static final int data_speed=0x7f060010;
-        public static final int error_gps_pos=0x7f060015;
-        public static final int error_mark=0x7f060014;
-        public static final int error_no_routes=0x7f060017;
-        public static final int error_no_wpt=0x7f060016;
-        public static final int goto_name=0x7f06000b;
-        public static final int gps_signal_found=0x7f060005;
-        public static final int gps_signal_not_found=0x7f060006;
-        public static final int gps_track_saved=0x7f06001e;
-        public static final int hello_world=0x7f060004;
-        public static final int mark_menu_name=0x7f060008;
+        public static final int DMS=0x7f06001b;
+        public static final int NotImplemented=0x7f06001c;
+        public static final int RouteNotExist=0x7f06001d;
+        public static final int WayPoint=0x7f060000;
+        public static final int action_Agregar=0x7f060019;
+        public static final int action_compass=0x7f06000d;
+        public static final int action_goto=0x7f06000b;
+        public static final int action_map=0x7f060004;
+        public static final int action_mark=0x7f060003;
+        public static final int action_quit=0x7f060008;
+        public static final int action_route=0x7f06000e;
+        public static final int action_settings=0x7f060002;
+        public static final int action_track=0x7f06000a;
+        public static final int app_name=0x7f060001;
+        public static final int data_accuracy=0x7f060013;
+        public static final int data_direction=0x7f060012;
+        public static final int data_distance=0x7f060014;
+        public static final int data_latitud=0x7f06000f;
+        public static final int data_longitud=0x7f060010;
+        public static final int data_speed=0x7f060011;
+        public static final int error_gps_pos=0x7f060016;
+        public static final int error_mark=0x7f060015;
+        public static final int error_no_routes=0x7f060018;
+        public static final int error_no_wpt=0x7f060017;
+        public static final int goto_name=0x7f06000c;
+        public static final int gps_signal_found=0x7f060006;
+        public static final int gps_signal_not_found=0x7f060007;
+        public static final int gps_track_saved=0x7f06001a;
+        public static final int hello_world=0x7f060005;
+        public static final int mark_menu_name=0x7f060009;
+        public static final int msg_approach=0x7f06001f;
+        public static final int wpt_name=0x7f06001e;
     }
     public static final class style {
         /** 
@@ -122,10 +132,10 @@ public final class R {
             backward-compatibility can go here.
         
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
+        public static final int AppTheme=0x7f080001;
     }
 }

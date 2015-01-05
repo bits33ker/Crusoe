@@ -4,5 +4,5 @@
     <item android:id="@+id/action_route" android:title="@string/action_route"></item>      
     <item android:id="@+id/action_quit" android:title="@string/action_quit"></item>
     <item android:id="@+id/action_track" android:title="@string/action_track"></item>
-    <item android:id="@+id/action_goto" android:title="@string/action_goto"></item>
+    <item android:id="@+id/action_goto" android:title="@string/wpt_name"></item>
 </menu>

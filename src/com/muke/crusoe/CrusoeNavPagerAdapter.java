@@ -18,6 +18,8 @@ public class CrusoeNavPagerAdapter extends FragmentPagerAdapter {
 			return new DataFragment();
 		case 1:
 			return new CompassFragment();
+		case 2:
+			return new StatFragment();
 		}
 
 		return null;
@@ -26,7 +28,7 @@ public class CrusoeNavPagerAdapter extends FragmentPagerAdapter {
 	@Override
 	public int getCount() {
 		// get item count - equal to number of tabs
-		return 2;//data y compass
+		return 3;//data y compass
 	}
 
 }

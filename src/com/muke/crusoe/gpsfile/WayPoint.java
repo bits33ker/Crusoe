@@ -17,6 +17,12 @@ public class WayPoint extends Location {
 		name = n;
 		description=d;
 	}
+	public WayPoint(String n)
+	{
+		super("");
+		name = n;
+		description="";
+	}
 	public WayPoint(Location l)
 	{
 		super(l);
