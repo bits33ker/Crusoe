@@ -17,15 +17,21 @@
         android:icon="@drawable/crusoesail"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity android:name="CrusoeNavActivity" android:configChanges="orientation">
+        <activity android:name="LaunchActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="CrusoeNavActivity"></activity>
+        <activity android:name="CrusoeSmallActivity" android:configChanges="orientation"></activity>
         <activity android:name="WayPointActivity" android:label="@string/mark_menu_name"></activity>
-        <activity android:name="CrusoeListActivity" android:label="@string/goto_name"></activity>
+        <activity android:name="RouteListActivity" android:label="@string/goto_name"></activity>
         <activity android:name="WayPointsListActivity"></activity>
         <activity android:name="AddRouteActivity"></activity>
+        <activity android:name="EditRouteActivity"></activity>
+        <activity android:name="FileChooser" android:label="@string/action_import"></activity>
+        <receiver android:name="StatFragment$CrusoeLocationReceiver"></receiver>
+        <receiver android:name="StatFragment$CrusoeLocationReceiver"></receiver>
     </application>
 </manifest>

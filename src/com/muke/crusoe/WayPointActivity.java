@@ -52,11 +52,11 @@ public class WayPointActivity extends Activity{
 			InitializeUI();
 			Intent intent = this.getIntent();
 			String n = intent.getStringExtra("NAME");
-			action = intent.getIntExtra("ACTION", CrusoeListActivity.NotDefined);
+			action = intent.getIntExtra("ACTION", CrusoeNavActivity.NotDefined);
 			if(n!=null && n!="")
 			{
 				old_name = n;
-				if(action!=WayPointsListActivity.Add)
+				if(action!=CrusoeNavActivity.Add)
 					editWpt.setText(n);
 			}
 			Double l = intent.getDoubleExtra("LATITUD", 0.0);

@@ -36,21 +36,26 @@ VERSIONES:
 		Latitud, Longitud, distancia recorrida, tiempo recorrido, Velocidad.
 	Vista Compass
 		GOTO, distancia al Wpt, ETA, Velocidad, Bearing.
-0.1.0.1: Actual	
+0.1.0.1:	
 	Poder agregar Rutas y WayPoints.
 	Que el sistema elija el punta mas cercano de una ruta y se dirija ahí.
-			
-ROADMAP:
-+	TRACKING: poder guardar el movimiento realizado. OK.
-+	DIRECTORIOS: Crear directorio CRUSOE, y directorios para Waypoints, Rutas y Tracking. OK
-+	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo. OK
-
+1.2.0.0: Actual
 +	WAYPOINTS: poder importar waypoints de (http://www.cibernautica.com.ar/derrote/cargarcolonia.htm).
 +	RUTAS: Creación de  rutas.
 +	Versiones para distintos modelos y tamaños de Android.
++	TRAYECTO: XML que indica un trayecto seguido.
 +	ESTADISTICAS: Fragment. Poder ver los tiempos de cada pierna, distancias, ...
++	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo. OK
+
+			
+ROADMAP:
 +	SATELITES: Visualizacion de Satelites.
 +	MAPAS : Fragment. poder visualizar mapas. + adelante
-+	TRAYECTO: XML que indica un trayecto seguido.
 +	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.
 +	WEB: Servidor web donde poder subir las cosas.
+
+UPLOAD:
++ Primero hay que firmar la App en modo Release.
++ zipalign -f -v 4 bin/Crusoe.apk CrusoeNav1.2.apk
++ Firmar como Release
++ Upload: https://play.google.com/apps/publish/?dev_acc=12506541493977587071#ApkPlace:p=com.muke.crusoe

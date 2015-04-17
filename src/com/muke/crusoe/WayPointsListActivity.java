@@ -11,10 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.muke.crusoe.WayPointActivity;
-import com.muke.crusoe.gpsfile.RoutePoint;
 import com.muke.crusoe.gpsfile.WayPoint;
 
 public class WayPointsListActivity extends ListActivity{
@@ -24,14 +21,8 @@ public class WayPointsListActivity extends ListActivity{
 	 * un elemento de la lista. Tambien indica que el mismo permanece seleccionado.
 	 * El color de seleccion se define en colors.xml
 	 */
-	public static final int NotDefined=0;
-	public static final int Active=1;
-	public static final int Invert=2;
-	public static final int Delete=3;
-	public static final int Add=4;
-	public static final int Edit=5;
 	
-	int action = NotDefined;//indica la accion a realizar
+	int action = CrusoeNavActivity.NotDefined;//indica la accion a realizar
 	int pos_selected=-1;
 	ArrayList<String> names = new ArrayList<String>();	//nombre de los waypoints
 	@Override
@@ -43,7 +34,7 @@ public class WayPointsListActivity extends ListActivity{
 		Intent intent = this.getIntent();
 		String p = intent.getStringExtra("NAMES");
 		//type = intent.getIntExtra("TYPE", NotDefined);
-		action = intent.getIntExtra("ACTION", NotDefined);
+		action = intent.getIntExtra("ACTION", CrusoeNavActivity.NotDefined);
 		if(p==null)
 		{
 	    	Intent returnIntent = new Intent();
@@ -78,11 +69,11 @@ public class WayPointsListActivity extends ListActivity{
 		pos_selected = pos;
 		v.setSelected(true);
 		String s = names.get(pos_selected);
-       	if(action==Add)
+       	if(action==CrusoeNavActivity.Add || action==CrusoeNavActivity.Insert)
        	{
            	Intent returnIntent = new Intent();
            	returnIntent.putExtra("RESULT",s);
-           	returnIntent.putExtra("ACTION", Add);
+           	returnIntent.putExtra("ACTION", CrusoeNavActivity.Add);
            	setResult(RESULT_OK,returnIntent);
         	finish();
         	return;
@@ -93,7 +84,7 @@ public class WayPointsListActivity extends ListActivity{
 			Intent wpi = new Intent(this, WayPointActivity.class);
 			wpi.putExtra("NAME", "NEW");
 			//gotoIntent.putExtra("TYPE", WptRC);
-			wpi.putExtra("ACTION", Add);
+			wpi.putExtra("ACTION", CrusoeNavActivity.Add);
 			this.startActivityForResult(wpi, CrusoeNavActivity.WptRC);
        		return;
        	}
@@ -105,14 +96,14 @@ public class WayPointsListActivity extends ListActivity{
                 //mDoneButton.setText(items[item]);
                	Intent returnIntent = new Intent();
                	returnIntent.putExtra("RESULT",names.get(pos_selected));
-               	int select = NotDefined;
+               	int select = CrusoeNavActivity.NotDefined;
                	switch(item)
                	{
                		case 0:
-               			select = Active;
+               			select = CrusoeNavActivity.Active;
                			break;
                		case 1:
-               			select = Delete;
+               			select = CrusoeNavActivity.Delete;
                			break;
                		case 2:
                		{
@@ -124,7 +115,7 @@ public class WayPointsListActivity extends ListActivity{
                 		wptIntent.putExtra("LONGITUD", p.getLongitude());
                 		wptIntent.putExtra("ACCURACY", p.getAccuracy());
                 		wptIntent.putExtra("NAME", p.getName());
-                		wptIntent.putExtra("ACTION", Edit);
+                		wptIntent.putExtra("ACTION", CrusoeNavActivity.Edit);
                 		startActivityForResult(wptIntent, CrusoeNavActivity.WptRC);
                		}
                		return;

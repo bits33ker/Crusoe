@@ -8,60 +8,25 @@
 
     <ImageView
         android:id="@+id/compassView"
-        android:layout_width="188dp"
-        android:layout_height="188dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:paddingTop="@dimen/activity_vertical_margin"
         android:src="@drawable/compass" />
 
     <ImageView
         android:id="@+id/sailboatImg"
-        android:layout_width="188dp"
-        android:layout_height="188dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/sailboat" />
-
-    <LinearLayout
-        android:layout_width="135dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/compassView"
         android:layout_weight="1"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/Renglon1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="@dimen/PosicionDimension" />
-
-        <TextView
-            android:id="@+id/Renglon2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="@dimen/PosicionDimension" />
-
-        <TextView
-            android:id="@+id/Renglon3"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="@dimen/PosicionDimension" />
-
-        <TextView
-            android:id="@+id/Renglon4"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="@dimen/PosicionDimension" />
-    </LinearLayout>
+        android:adjustViewBounds="true"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:src="@drawable/sailboat" />
 
 </RelativeLayout>

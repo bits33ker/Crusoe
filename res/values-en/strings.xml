@@ -40,12 +40,16 @@
         <item >Edit</item>        
     </string-array>
     <string-array name="Route_Edit_menues">
-        <item>Add</item>
+        <item>Insert</item>
         <item>Delete</item>
-        <item >Edit</item>        
+        <item >Move Up</item>
+        <item >Move Down</item>        
     </string-array>
     <string name="NotImplemented">Not implemented yet</string>
     <string name="RouteNotExist">The Route selected doesnt exist</string>
     <string name="wpt_name">WayPoint</string>
     <string name="msg_approach">Approaching to </string>
+    <string name="ActiveRoute">Cannot Edit or Delete Active Route</string>
+    <string name="action_import">Import</string>
+    <string name="msg_no_route">No Route Selected</string>
 </resources>

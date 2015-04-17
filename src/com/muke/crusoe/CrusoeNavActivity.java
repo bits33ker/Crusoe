@@ -2,8 +2,12 @@ package com.muke.crusoe;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Locale;
 
+import com.muke.crusoe.StatWpt;
+import com.muke.crusoe.RouteListActivity;
+import com.muke.crusoe.FileChooser;
 import com.muke.crusoe.CrusoeApplication.thread_status;
 import com.muke.crusoe.gpsfile.GpxWriter;
 import com.muke.crusoe.gpsfile.RoutePoint;
@@ -21,15 +25,25 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TabHost;
 import android.widget.Toast;
 import android.widget.TabHost.OnTabChangeListener;
 
 public class CrusoeNavActivity extends FragmentActivity implements
 		OnTabChangeListener, OnPageChangeListener {
-	//clases para el manejo de los Fragments
+	/*
+	 * Esta es la clase principal.
+	 * Desde aqui se manejan los fragments y
+	 * los menu's: Goto, Routes, Mark, Track, Quit
+	 */
+	
+	
+	//clases para el manejo de los Fragments para SMALL
 	private CrusoeNavPagerAdapter mAdapter;
     private ViewPager mViewPager;
     private TabHost mTabHost;
@@ -42,17 +56,30 @@ public class CrusoeNavActivity extends FragmentActivity implements
 	public final static int RouteRC=3;//id de las rutas
 	public final static int RouteEdit=4;//id de edicion de rutas
 	public final static int WptEdit = 5;
+	public final static int FileCh = 6;
 	
+	//Constantes utilizadas en las distintas actividades
+	public static final int NotDefined=0;
+	public static final int Active=1;
+	public static final int Invert=2;
+	public static final int Delete=3;
+	public static final int Add=4;
+	public static final int Insert = 5;
+	public static final int Edit=6;
+	public static final int MoveUp=7;
+	public static final int MoveDown=8;
+
 	//boolean goback=false;
 	public static final String CRUSOE_LOCATION_VIEW_INTENT = "com.muke.crusoe.LocationView";
+	public static final String CRUSOE_MESSAGE = "com.muke.crusoe.message";
 
 	WayPoint mLocation = null;
-	private final IntentFilter intentFilter = new IntentFilter(CrusoeApplication.CRUSOE_LOCATION_INTENT);
-	private final CrusoeLocationReceiver mReceiver = new CrusoeLocationReceiver();
-	private boolean registered=false;
+	private final IntentFilter locFilter = new IntentFilter(CrusoeApplication.CRUSOE_LOCATION_INTENT);
+	private final CrusoeLocationReceiver locReceiver = new CrusoeLocationReceiver();
+	private boolean locRegistered=false;
 	  
 	private class CrusoeLocationReceiver extends BroadcastReceiver{
-
+		//recibe los cambios de posicion del gps
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
@@ -82,15 +109,147 @@ public class CrusoeNavActivity extends FragmentActivity implements
 		}
 	};
 
+	private final IntentFilter msgFilter = new IntentFilter(CRUSOE_MESSAGE);
+	private final CrusoeMessageReceiver msgReceiver = new CrusoeMessageReceiver();
+	private boolean msgRegistered=false;
+	//borra WayPoint de todas las rutas
+	void DeleteWpt(String n)
+	{
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		WayPoint p = app.getWayPoint(n);
+		if(p!=null)
+		{
+			for(RoutePoint r: app.routes)
+			{
+				r.Locations().remove(p);
+			}
+		}		
+	}
+	//coloca  un WayPoint en GOTO
+	void GotoWpt(String n)
+	{
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		app.gotoWpt = null;
+		WayPoint p = app.getWayPoint(n);
+		if(p==null)
+		{
+            Toast.makeText(getBaseContext(), 
+                    R.string.error_no_wpt, 
+                    Toast.LENGTH_SHORT).show();
+            return;
+		}
+		
+		if(app.ruta_seguir!=null)
+		{
+			//si tengo una ruta activa, busco si el wpt pertenece a la ruta.
+			//si pertence voy directamente a ese punto y continuo con los siguientes de la ruta
+			int w=0;
+			while(w<app.ruta_seguir.size())
+			{
+				app.gotoWpt = (StatWpt)app.ruta_seguir.get(w);
+				if(n.compareTo(app.gotoWpt.getName())==0)
+				{
+					//app.ruta_seguir.remove(app.gotoWpt);
+					int w2=0;
+					while(w2<w)
+					{
+						((StatWpt)app.ruta_seguir.get(w2)).Terminado(true);
+						w2++;
+					}
+					app.ruta_offset=w;
+					app.track.StopSegment();
+					app.track.StartSegment();
+					return;
+				}
+				//debo borrar todos los puntos anteriores.
+				//app.ruta_seguir.remove(app.gotoWpt);
+				w++;
+			}
+		}
+		app.track.StartSegment();
+		if(mLocation!=null)
+			app.gotoWpt = new StatWpt(p);
+		else
+            Toast.makeText(getBaseContext(), 
+                    R.string.gps_signal_not_found, 
+                    Toast.LENGTH_SHORT).show();
+	
+	}
+	void UpdateStats()
+	{
+       	//actualizo StatFragment
+		Log.i("TAG", "CrusoeNavActivity.UpdateStats");
+    	Intent t = new Intent();
+    	t.setAction(StatFragment.CRUSOE_STAT_MESSAGE);
+		sendBroadcast(t);
+	}
+	//recibe mensajes de otras actividades y fragments
+	private class CrusoeMessageReceiver extends BroadcastReceiver{
+		//recibe mensajes como nuevo goto, ruta, ...
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// TODO Auto-generated method stub
+			//extraigo de Intent los datos enviados
+			Log.i("TAG", "CrusoeNavActivity.MSG");
+			try{
+	           	int select = intent.getIntExtra("ACTION", NotDefined);
+	    		CrusoeApplication app = ((CrusoeApplication)getApplication());
+	    		String n = intent.getStringExtra("NAME");
+	           	switch(select)
+	           	{
+	           	case Active:
+	           		GotoWpt(n);
+	           		break;
+	           	case Delete:
+	           		{
+	        			//WayPoint p = app.getWayPoint(n);
+	           			int w=0;
+	           			StatWpt sw=null;
+	           			while(w<app.ruta_seguir.size())
+	           			{
+	           				sw = app.ruta_seguir.get(w);
+	           				if(n.compareTo(sw.getWpt().getName())==0)
+	           					break;
+	           				w++;
+	           			}
+	           			if(w<app.ruta_seguir.size())
+	           				app.ruta_seguir.remove(sw);
+	           		}
+	           		break;
+	           	}
+	           	//actualizo StatFragment
+	           	UpdateStats();
+			}
+			catch(Exception e)
+			{
+                Toast.makeText(getBaseContext(), 
+                		"CrusoeNavActivity.onReceived: " + e.getMessage(), 
+                        Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
+		//cambia configuracion: landscape o portrait
 	  super.onConfigurationChanged(newConfig);
-		if(registered==false)
-			this.registerReceiver(mReceiver, intentFilter);
-		registered = true;
-		//compassView = (ImageView)findViewById(R.id.compassImg);
-
+		if(locRegistered==false)
+			this.registerReceiver(locReceiver, locFilter);
+		locRegistered = true;
+		if(msgRegistered==false)
+			this.registerReceiver(msgReceiver, msgFilter);
+		msgRegistered = true;
+		int size = newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if(size != Configuration.SCREENLAYOUT_SIZE_SMALL)
+		{
+			//((LinearLayout)findViewById(R.id.compass_large)).removeAllViews();
+		    if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
+				setContentView(R.layout.main_port);
+			  else
+				setContentView(R.layout.main_land);
+		}
 	}
+	
     // Method to add a TabHost
     private static void AddTab(CrusoeNavActivity activity, TabHost tabHost, TabHost.TabSpec tabSpec) {
         tabSpec.setContent(new CrusoeTabFactory(activity));
@@ -113,9 +272,12 @@ public class CrusoeNavActivity extends FragmentActivity implements
 		Log.i("TAG", "DataActivity.onStop");
 		try{
 			CrusoeApplication app = (CrusoeApplication)getApplication();
-			if(registered)
-				unregisterReceiver(mReceiver);
-			registered = false;
+			if(locRegistered)
+				unregisterReceiver(locReceiver);
+			locRegistered = false;
+			if(msgRegistered)
+				unregisterReceiver(msgReceiver);
+			msgRegistered = false;
 			if(app.getThreadStatus() == thread_status.thStop && app.getLooper()!=null)
 			{
 				//handler.sendEmptyMessage(1002);//envia mensaje. Atiende handler
@@ -159,28 +321,43 @@ public class CrusoeNavActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		try{
 			Log.i("TAG", "CrusoeNavActivity.onCreate");
-			setContentView(R.layout.activity_main);
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
-			app.CargoWayPoints();
+			if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+				setContentView(R.layout.main_port);
+			else
+				setContentView(R.layout.main_land);
 			//inicializo framents
-	        mViewPager = (ViewPager) findViewById(R.id.viewpager);
-			initialiseTabHost();
-
-	        // Tab Initialization
-	        //initialiseTabHost();
-	        mAdapter = new CrusoeNavPagerAdapter(getSupportFragmentManager());
-	        // Fragments and ViewPager Initialization
-	       
-	        
-	        mViewPager.setAdapter(mAdapter);
-	        mViewPager.setOnPageChangeListener(CrusoeNavActivity.this);
-
-	        if(!registered)
+	        if(!locRegistered)
 			{
-				this.registerReceiver(mReceiver, intentFilter);
-				registered = true;
+				if(this.registerReceiver(locReceiver, locFilter)!=null)
+					locRegistered = true;
+				else
+					Log.i("ERROR", "CrusoeNavActivity.CrusoeLocationReceiver");
+					
+			}
+	        if(!msgRegistered)
+			{
+				if(this.registerReceiver(msgReceiver, msgFilter)!=null)
+					msgRegistered = true;
+				else
+					Log.i("ERROR", "CrusoeNavActivity.CrusoeMessageReceiver");
 			}
 			
+	        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+	        if(mViewPager!=null)
+	        {
+	        	//version para mi cell
+	        	initialiseTabHost();
+
+	        	// Tab Initialization
+	        	//initialiseTabHost();
+	        	mAdapter = new CrusoeNavPagerAdapter(getSupportFragmentManager());
+	        	// Fragments and ViewPager Initialization
+	       
+	        
+	        	mViewPager.setAdapter(mAdapter);
+	        	mViewPager.setOnPageChangeListener(CrusoeNavActivity.this);
+	        }
 			if(app.getThreadStatus()==thread_status.thStart)
 			{
 				app.StartThread();
@@ -188,7 +365,7 @@ public class CrusoeNavActivity extends FragmentActivity implements
 		}
 		catch(Exception e)
 		{
-			Log.i("ERROR", e.getMessage());
+			Log.i("ERROR CrusoeNavActivity ", e.getMessage());
 		}
 	}
 	@Override
@@ -198,10 +375,15 @@ public class CrusoeNavActivity extends FragmentActivity implements
 		try {
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
 
-			if(!registered)
+			if(!locRegistered)
 			{
-				this.registerReceiver(mReceiver, intentFilter);
-				registered = true;
+				this.registerReceiver(locReceiver, locFilter);
+				locRegistered = true;
+			}
+			if(!msgRegistered)
+			{
+				this.registerReceiver(msgReceiver, msgFilter);
+				msgRegistered = true;
 			}
 			//CrusoeApplication app = ((CrusoeApplication)getApplication());
 			if(app.getThreadStatus()==thread_status.thStart)
@@ -214,314 +396,221 @@ public class CrusoeNavActivity extends FragmentActivity implements
 			Log.i("ERROR", e.getMessage());
 		}
 	}
-    @Override
+	void onFileAction(int resultCode, Intent data)
+	{
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		if(resultCode==RESULT_OK && android.os.Environment.getExternalStorageState().equals(
+                android.os.Environment.MEDIA_MOUNTED))
+		{
+			String res = data.getStringExtra("RESULT");//nombre del archivo a cargar
+			ArrayList<RoutePoint> R = CrusoeApplication.CargoWayPoints(res);
+			if(R!=null)
+			{
+				for(RoutePoint RP:R)
+				{
+					SaveRoute(RP, RP.getName() + ".gpx");
+				}
+				app.routes.addAll(R);
+			}
+		}
+	}
+	/*
+	 * onRouteAction: atiende los comandos: Activar, Invertir y Borra Ruta. El resto se atiende en su respectivo dialogo.
+	 */
+	void onRouteAction(int resultCode, Intent data)
+	{
+		Log.i("TAG", "CrusoeNavActivity.onActivityResult.onRouteAction");
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		if(resultCode==RESULT_OK)
+		{
+			
+			String res = data.getStringExtra("RESULT");
+			int i=0;
+			app.ruta_seguir = null;
+			app.ruta_offset=0;
+			while(i<app.routes.size())
+			{
+				String nombre = app.routes.get(i).getName();
+				if(res.compareTo(nombre)==0)
+					break;
+				i++;
+			}
+			if(i<app.routes.size())
+			{
+				int action = data.getIntExtra("ACTION", -1);
+				switch(action)
+				{
+				case CrusoeNavActivity.Invert://invertir
+				{
+					if(mLocation!=null)
+					{
+						RoutePoint R = app.routes.get(i);
+						if(app.ruta_seguir==null)
+							app.ruta_seguir = new ArrayList<StatWpt>();
+						app.ruta_seguir.clear();
+						app.active_route = R.getName();
+						//app.ruta_seguir = new RoutePoint(R.getName() + " INV");
+						for(WayPoint w:R.Locations())
+						{
+							app.ruta_seguir.add(0, (StatWpt)new StatWpt(w));
+						}
+						//int comienzo = app.Closest(app.ruta_seguir, mLocation);
+						//while(comienzo>=0)
+						//{
+						//	app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
+						//	app.ruta_seguir.Locations().remove(app.gotoWpt);
+						//	comienzo--;
+						//}
+						app.gotoWpt = (StatWpt)app.ruta_seguir.get(0);
+						app.ruta_offset=0;
+						app.track.StartSegment();
+			           	//actualizo StatFragment
+						UpdateStats();
+					}
+			    	else
+				        Toast.makeText(getBaseContext(), 
+				                   R.string.error_gps_pos, 
+				                    Toast.LENGTH_SHORT).show();
+			    		
+				}
+					return;
+				case CrusoeNavActivity.Active://activar
+				{
+					if(mLocation!=null)
+					{
+						RoutePoint R = app.routes.get(i);
+						if(app.ruta_seguir==null)
+							app.ruta_seguir = new ArrayList<StatWpt>();
+						app.ruta_seguir.clear();
+						app.active_route = R.getName();
+						//app.ruta_seguir = new RoutePoint(R.getName());
+						for(WayPoint w:R.Locations())
+						{
+							app.ruta_seguir.add(new StatWpt(w));
+						}
+						//int comienzo = app.Closest(app.ruta_seguir, mLocation);
+						//while(comienzo>=0)
+						//{
+						//	app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
+						//	app.ruta_seguir.Locations().remove(app.gotoWpt);
+						//	comienzo--;
+						//}
+						app.gotoWpt = (StatWpt)app.ruta_seguir.get(0);
+						app.ruta_offset=0;
+						app.track.StartSegment();
+						UpdateStats();
+					}
+		    		else
+			            Toast.makeText(getBaseContext(), 
+			                    R.string.error_gps_pos, 
+			                    Toast.LENGTH_SHORT).show();
+		    		
+				}
+					return;
+				case CrusoeNavActivity.Delete://borrar
+					app.routes.remove(i);
+					return;
+				default://cualquier otro caso. No deberia llegar aca
+					{
+    	            Toast.makeText(getBaseContext(), 
+    	                    R.string.NotImplemented, 
+    	                    Toast.LENGTH_SHORT).show();
+					}	
+					break;
+				}
+			}
+		}
+	}
+	void onWayPointAction(int resultCode, Intent data)
+	{
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		if(resultCode==RESULT_OK)
+		{
+				int action = data.getIntExtra("ACTION", -1);
+				switch(action)
+				{
+				case CrusoeNavActivity.Add:
+				{//esto debe pasarse a RouteListActivity luego de un EditRouteActivity
+	    			String wpt = data.getStringExtra("RESULT");
+	    			WayPoint p = new WayPoint(wpt);
+	    			RoutePoint ruta = app.getRoute("waypoints");
+	    			if(ruta==null)
+	    			{
+	    				//Log.i("ERROR", this.getResources().getString(R.string.error_mark));
+	    	            //Toast.makeText(getBaseContext(), 
+	    	            //        R.string.error_mark, 
+	    	            //        Toast.LENGTH_SHORT).show();
+	    				//return;
+	    				ruta = new RoutePoint("waypoints");
+	    				app.routes.add(ruta);
+	    			}
+	    			p.setLatitude(data.getDoubleExtra("LATITUD", 0.0));
+	    			p.setLongitude(data.getDoubleExtra("LONGITUD", 0.0));
+	    			ruta.addWayPoint(p);
+	    			SaveRoute(ruta, "waypoints.gpx");
+				}
+				break;
+				case CrusoeNavActivity.Active://activar
+				{
+	    			String res = data.getStringExtra("RESULT");
+	    			GotoWpt(res);
+				}
+					break;
+				case CrusoeNavActivity.Delete://borrar
+				{
+	    			String res = data.getStringExtra("RESULT");
+	    			DeleteWpt(res);
+				}
+					break;
+				case CrusoeNavActivity.Edit://editar
+				{
+					//llega aca para editar un Wpt
+	    			String new_name = data.getStringExtra("RESULT");
+	    			String old_name = data.getStringExtra("NAME");
+	    			WayPoint p = app.getWayPoint(old_name);
+	    			if(p==null)
+	    			{
+      	            Toast.makeText(getBaseContext(), 
+       	                    R.string.error_no_wpt, 
+       	                    Toast.LENGTH_SHORT).show();
+	    				break;
+	    			}
+	    			p.setName(new_name);
+				}
+					break;
+				}
+		}
+	}
+
+	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	//resultado de llamados a otras actividades
 		if(resultCode==RESULT_CANCELED)
 		{
 			return;
 		}
 			
-		CrusoeApplication app = ((CrusoeApplication)getApplication());
-    	if(requestCode==RouteRC)
+    	if(requestCode==WptRC)//resultado de llamado a WAyPoint ListActivity
     	{
-    		if(resultCode==RESULT_OK)
-    		{
-    			String res = data.getStringExtra("RESULT");
-    			int i=0;
-    			if(res.compareTo("NEW")==0)
-    			{
-    				//agregar nueva ruta!!!
-    				String n = data.getStringExtra("NAME");
-    				if(n!=null && n!="")
-    				{
-    					app.routes.add(new RoutePoint(n));
-    				}
-    				return;
-    			}
-    			if(res.compareTo("ADD")==0)
-    			{
-    				//agregar waypoint a ruta
-    				String r = data.getStringExtra("ROUTE");
-    				RoutePoint rp = app.getRoute(r);
-    				if(rp!=null)
-    				{
-    					String w = data.getStringExtra("NAME");
-    					WayPoint wp = app.getWayPoint(w);
-    					if(wp!=null)
-    					{
-    						rp.addWayPoint(wp);
-    		    			SaveRoute(rp, rp.getName() + ".gpx");
-    					}
-    					else
-    				        Toast.makeText(getBaseContext(), 
- 				                   R.string.error_no_wpt, 
- 				                    Toast.LENGTH_SHORT).show();
-    				}
-    				else
-				        Toast.makeText(getBaseContext(), 
-				                   R.string.RouteNotExist, 
-				                    Toast.LENGTH_SHORT).show();
-    				return;
-    			}
-    			app.ruta_seguir = null;
-    			while(i<app.routes.size())
-    			{
-    				String nombre = app.routes.get(i).getName();
-    				if(res.compareTo(nombre)==0)
-    					break;
-    				i++;
-    			}
-    			if(i<app.routes.size())
-    			{
-    				int action = data.getIntExtra("ACTION", -1);
-    				switch(action)
-    				{
-    				case CrusoeListActivity.Invert://invertir
-    				{
-    					if(mLocation!=null)
-    					{
-    						RoutePoint R = app.routes.get(i);
-    						app.ruta_seguir = new RoutePoint(R.getName() + " INV");
-    						//app.ruta_seguir.addAll(R.Locations());
-    						for(WayPoint w : R.Locations())
-    						{
-    							app.ruta_seguir.insWayPoint(0, w);
-    						}
-    						int comienzo = app.Closest(app.ruta_seguir, mLocation);
-    						while(comienzo>=0)
-    						{
-    							app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
-    							app.ruta_seguir.Locations().remove(app.gotoWpt);
-    							comienzo--;
-    						}
-    						app.track.StartSegment();
-    					}
-    			    	else
-    				        Toast.makeText(getBaseContext(), 
-    				                   R.string.error_gps_pos, 
-    				                    Toast.LENGTH_SHORT).show();
-    			    		
-    				}
-    					return;
-    				case CrusoeListActivity.Active://activar
-    				{
-    					if(mLocation!=null)
-    					{
-    						RoutePoint R = app.routes.get(i);
-    						app.ruta_seguir = new RoutePoint(R.getName());
-    						app.ruta_seguir.addAll(R.Locations());
-    						int comienzo = app.Closest(app.ruta_seguir, mLocation);
-    						while(comienzo>=0)
-    						{
-    							app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
-    							app.ruta_seguir.Locations().remove(app.gotoWpt);
-    							comienzo--;
-    						}
-    						app.track.StartSegment();
-    					}
-    		    		else
-    			            Toast.makeText(getBaseContext(), 
-    			                    R.string.error_gps_pos, 
-    			                    Toast.LENGTH_SHORT).show();
-    		    		
-    				}
-    					return;
-    				case CrusoeListActivity.Delete://borrar
-    					app.routes.remove(i);
-    					return;
-    				case CrusoeListActivity.Edit://editar
-    					{
-        	            Toast.makeText(getBaseContext(), 
-        	                    R.string.NotImplemented, 
-        	                    Toast.LENGTH_SHORT).show();
-    					}	
-    					break;
-    				}
-    			}
-    		}
+    		onWayPointAction(resultCode, data);
     	}
-    	if(requestCode==WptRC)
+    	if(requestCode==RouteRC)//resultado de llamado a RouteListActivity
     	{
-    		if(resultCode==RESULT_OK)
-    		{
-   				int action = data.getIntExtra("ACTION", -1);
-   				switch(action)
-   				{
-   				case CrusoeListActivity.Add:
-   				{
-   	    			String wpt = data.getStringExtra("RESULT");
-   	    			WayPoint p = new WayPoint(wpt);
-   	    			RoutePoint ruta = app.getRoute("waypoints");
-   	    			if(ruta==null)
-   	    			{
-   	    				Log.i("ERROR", this.getResources().getString(R.string.error_mark));
-   	    	            Toast.makeText(getBaseContext(), 
-   	    	                    R.string.error_mark, 
-   	    	                    Toast.LENGTH_SHORT).show();
-   	    				return;
-   	    			}
-   	    			p.setLatitude(data.getDoubleExtra("LATITUD", 0.0));
-   	    			p.setLongitude(data.getDoubleExtra("LONGITUD", 0.0));
-   	    			ruta.addWayPoint(p);
-   	    			SaveRoute(ruta, "waypoints.gpx");
-   				}
-   				break;
-   				case CrusoeListActivity.Active://activar
-   				{
-   	    			app.gotoWpt = null;
-   	    			String res = data.getStringExtra("RESULT");
-   	    			WayPoint p = app.getWayPoint(res);
-   	    			if(p==null)
-   	    			{
-           	            Toast.makeText(getBaseContext(), 
-           	                    R.string.error_no_wpt, 
-           	                    Toast.LENGTH_SHORT).show();
-           	            break;
-   	    			}
-   	    			if(app.ruta_seguir!=null)
-   	    			{
-   	    				//si tengo una ruta activa, busco si el wpt pertenece a la ruta.
-   	    				//si pertence voy directamente a ese punto y continuo con los siguientes de la ruta
-   	    				while(app.ruta_seguir.Locations().size()>0)
-   	    				{
-   							app.gotoWpt = (WayPoint)app.ruta_seguir.Locations().toArray()[0];
-   							if(res.compareTo(app.gotoWpt.getName())==0)
-   							{
-   	   							app.ruta_seguir.Locations().remove(app.gotoWpt);
-   								app.track.StopSegment();
-   								app.track.StartSegment();
-   								return;
-   							}
-   							//debo borrar todos los puntos anteriores.
-   							app.ruta_seguir.Locations().remove(app.gotoWpt);
-   	    				}
-   	    			}
-   					app.track.StartSegment();
-   					if(mLocation!=null)
-   						app.gotoWpt = p;
-   					else
-           	            Toast.makeText(getBaseContext(), 
-           	                    R.string.gps_signal_not_found, 
-           	                    Toast.LENGTH_SHORT).show();
-   				}
-   					break;
-   				case CrusoeListActivity.Delete://borrar
-   				{
-   	    			String res = data.getStringExtra("RESULT");
-   	    			WayPoint p = app.getWayPoint(res);
-   	    			if(p!=null)
-   	    			{
-   	    				for(RoutePoint r: app.routes)
-   	    				{
-   	    					r.Locations().remove(p);
-   	    				}
-   	    			}
-   				}
-   					break;
-   				case CrusoeListActivity.Edit://editar
-   				{
-   					//llega aca para editar un Wpt
-   	    			String new_name = data.getStringExtra("RESULT");
-   	    			String old_name = data.getStringExtra("NAME");
-   	    			WayPoint p = app.getWayPoint(old_name);
-   	    			if(p==null)
-   	    			{
-          	            Toast.makeText(getBaseContext(), 
-           	                    R.string.error_no_wpt, 
-           	                    Toast.LENGTH_SHORT).show();
-  	    				break;
-   	    			}
-   	    			p.setName(new_name);
-  				}
-   					break;
-   				}
-    		}
+    		onRouteAction(resultCode, data);
     	}
-    	if(requestCode==RouteEdit)
-    	{//mandarlo a GotoActivity
-    		if(resultCode==RESULT_OK)
-    		{
-    			String res = data.getStringExtra("RESULT");
-    			WayPoint p = null;
-    			for(RoutePoint r: app.routes)
-    			{
-    				for(WayPoint w: r.Locations())
-    				{
-    					if(res.compareTo(w.getName())==0)
-    					{
-    						p = w;
-    						break;
-    					}
-    				}
-    			}
-    			if(p!=null)
-    			{
-    				int action = data.getIntExtra("ACTION", -1);
-    				switch(action)
-    				{
-    				case CrusoeListActivity.Add:
-    				{
-    		    		if(app.routes.size()>0)
-    		    		{
-    		    			String param="";
-    		    			for(RoutePoint r : app.routes)
-    		    			{
-    		    				for(WayPoint w: r.Locations())
-    		    				{
-    		    					param = param + w.getName() + ";";
-    		    				}
-    		    			}
-    						Intent gotoIntent = new Intent(this, CrusoeListActivity.class);
-    						gotoIntent.putExtra("NAMES", param);
-    						gotoIntent.putExtra("TYPE", WptRC);
-    						this.startActivityForResult(gotoIntent, RouteEdit);
-    		    		}
-    		    		else
-    			            Toast.makeText(getBaseContext(), 
-    			                    R.string.error_no_wpt, 
-    			                    Toast.LENGTH_SHORT).show();
-    				}
-    					break;
-    				case CrusoeListActivity.Delete://borrar
-    	    			for(RoutePoint r: app.routes)
-    	    			{
-    	    				r.Locations().remove(p);
-    	    			}
-    					break;
-    				case CrusoeListActivity.Edit://editar
-    					
-    					//llega aca para editar una Ruta
-        	            Toast.makeText(getBaseContext(), 
-        	                    R.string.NotImplemented, 
-        	                    Toast.LENGTH_SHORT).show();
-    					break;
-    				}
-    			}
-    		}
+    	if(requestCode==FileCh)//Import File
+    	{
+    		onFileAction(resultCode, data);
     	}
     	/*
-    	if(requestCode==MarkRC)
+    	if(requestCode==RouteEdit)
     	{
-    		if(resultCode==RESULT_OK)
-    		{
-    			String wpt = data.getStringExtra("RESULT");
-    			markWpt.setName(wpt);
-    			RoutePoint ruta = app.getRoute("waypoints");
-    			if(ruta==null)
-    			{
-    				Log.i("ERROR", this.getResources().getString(R.string.error_mark));
-    	            Toast.makeText(getBaseContext(), 
-    	                    R.string.error_mark, 
-    	                    Toast.LENGTH_SHORT).show();
-    				return;
-    			}
-    			ruta.addWayPoint(markWpt);
-    			SaveRoute(ruta, "waypoints.gpx");
-    		}    		
+    		//fue llevado a EditRouteActivity
+    		onRouteEdit(resultCode, data);
     	}*/
     	return;
     }
-    void SaveRoute(RoutePoint ruta, String filename)
+    public static void SaveRoute(RoutePoint ruta, String filename)
     {
 		try {
 			File WaypointsDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Waypoints");
@@ -589,7 +678,7 @@ public class CrusoeNavActivity extends FragmentActivity implements
     			markIntent.putExtra("LATITUD", mLocation.getLatitude());
     			markIntent.putExtra("LONGITUD", mLocation.getLongitude());
     			markIntent.putExtra("ACCURACY", mLocation.getAccuracy());
-    			markIntent.putExtra("ACTION", WayPointsListActivity.Add);
+    			markIntent.putExtra("ACTION", Add);
     			this.startActivityForResult(markIntent, WptRC);
     		}
     		else
@@ -635,7 +724,7 @@ public class CrusoeNavActivity extends FragmentActivity implements
     						param = param + app.routes.get(i).getName() + ";";
     					i++;
     				}
-					Intent routeIntent = new Intent(this, CrusoeListActivity.class);
+					Intent routeIntent = new Intent(this, RouteListActivity.class);
 					routeIntent.putExtra("NAMES", param);
 					routeIntent.putExtra("TYPE", RouteRC);
 					this.startActivityForResult(routeIntent, RouteRC);
@@ -650,6 +739,12 @@ public class CrusoeNavActivity extends FragmentActivity implements
     		Toast.makeText(this.getBaseContext(), 
 	                "VERSION 0.1.0.1", 
 	                Toast.LENGTH_LONG).show();
+    		break;
+    	case R.id.action_import:
+    	{
+			Intent fileIntent = new Intent(this, FileChooser.class);
+			this.startActivityForResult(fileIntent, FileCh);
+    	}
     		break;
     	case R.id.action_quit:
     	{
@@ -696,6 +791,18 @@ public class CrusoeNavActivity extends FragmentActivity implements
 		// TODO Auto-generated method stub
         int pos = this.mTabHost.getCurrentTab();
         this.mViewPager.setCurrentItem(pos);
+	}
+	public static String convMilliSec(long milli)
+	{//convierto latitud
+
+		int ss = (int)milli/1000;
+		int mm = ss/60;
+		ss = ss % 60;
+		int hh = mm/60;
+		mm = mm % 60;
+		String hms=String.format("%02d:%02d:%02d", hh, mm, ss);
+		
+		return hms;
 	}
 
 }

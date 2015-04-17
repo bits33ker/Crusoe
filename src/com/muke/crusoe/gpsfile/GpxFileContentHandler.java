@@ -16,16 +16,22 @@ import android.location.Location;
 public class GpxFileContentHandler implements ContentHandler {
     private String currentValue;
     private WayPoint location;
+    private RoutePoint ruta;
     private List<WayPoint> locationList;
+    private List<RoutePoint>routeList;
     private final SimpleDateFormat GPXTIME_SIMPLEDATEFORMAT = new SimpleDateFormat(
         "yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     public GpxFileContentHandler() {
         locationList = new ArrayList<WayPoint>();
+        routeList = new ArrayList<RoutePoint>();
     }
 
     public List<WayPoint> getLocationList() {
         return locationList;
+    }
+    public List<RoutePoint> getRouteList() {
+        return routeList;
     }
 
     @Override
@@ -41,6 +47,15 @@ public class GpxFileContentHandler implements ContentHandler {
             location = new WayPoint("", "", "gpxImport");//name, provider
             location.setLatitude(Double.parseDouble(atts.getValue("lat").trim()));         
             location.setLongitude(Double.parseDouble(atts.getValue("lon").trim()));
+        }
+        if (localName.equalsIgnoreCase("rtept")) {//waypoint de una ruta
+            location = new WayPoint("", "", "gpxImport");//name, provider
+            location.setLatitude(Double.parseDouble(atts.getValue("lat").trim()));         
+            location.setLongitude(Double.parseDouble(atts.getValue("lon").trim()));
+        }
+        if(localName.equalsIgnoreCase("rte"))
+        {
+        	ruta = new RoutePoint();
         }
     }
 
@@ -63,7 +78,10 @@ public class GpxFileContentHandler implements ContentHandler {
         }
         if(localName.equalsIgnoreCase("name"))
         {
-        	location.setName(currentValue.trim());
+        	if(location!=null)
+        		location.setName(currentValue.trim());
+        	else
+        		ruta.setName(currentValue.trim());
         }
 
         //if (localName.equalsIgnoreCase("trkpt")) {
@@ -71,6 +89,15 @@ public class GpxFileContentHandler implements ContentHandler {
         //}
         if (localName.equalsIgnoreCase("wpt")) {
         	locationList.add(location);
+        	location = null;
+        }
+        if (localName.equalsIgnoreCase("rtept")) {
+        	ruta.addWayPoint(location);
+        	location = null;
+        }
+        if (localName.equalsIgnoreCase("rte")) {
+        	routeList.add(ruta);
+        	ruta = null;
         }
     }
 

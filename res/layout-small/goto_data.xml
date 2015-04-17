@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/background_color"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:orientation="horizontal"
+ >
+
+    <TextView
+        android:id="@+id/waypoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="GOTO"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/latitud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/waypoint"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/longitud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/latitud"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/recorrido"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/longitud"
+        android:text="KM      "
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/tiempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/recorrido"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/curso"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tiempo"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+</RelativeLayout>

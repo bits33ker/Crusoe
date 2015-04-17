@@ -13,36 +13,35 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.muke.crusoe.WayPointActivity;
 import com.muke.crusoe.gpsfile.RoutePoint;
 import com.muke.crusoe.gpsfile.WayPoint;
 
-public class CrusoeListActivity extends ListActivity{
+public class RouteListActivity extends ListActivity{
 	/*
 	 * utiliza goto_view.xml como resource.
 	 * dentro de goto_view.xml se instancia bg_key.xml que indica el color que usamos cuando seleccionamos 
 	 * un elemento de la lista. Tambien indica que el mismo permanece seleccionado.
 	 * El color de seleccion se define en colors.xml
+	 * 
+	 * Se utiliza para listar rutas.
+	 * Salvo Edit todas las demas acciones deben regresar al main.
+	 * Edit debe regresar a esta actividad para facilitar el agregado de WayPoints 
 	 */
-	public static final int NotDefined=0;
-	public static final int Active=1;
-	public static final int Invert=2;
-	public static final int Delete=3;
-	public static final int Add=4;
-	public static final int Edit=5;
 	
-	int action = NotDefined;//indica la accion a realizar
+	int action = CrusoeNavActivity.NotDefined;//indica la accion a realizar
 	int pos_selected=-1;
 	ArrayList<String> names = new ArrayList<String>();	//nombre de los waypoints
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);//para que lo ponga en el stack cuando llama a una activity
 
-		Log.i("TAG", "GotoActivity.onCreate");
+		Log.i("TAG", "CrusoeListActivity.onCreate");
 		//setContentView(R.layout.goto_view);
 		Intent intent = this.getIntent();
 		String p = intent.getStringExtra("NAMES");
-		action = intent.getIntExtra("ACTION", NotDefined);
+		action = intent.getIntExtra("ACTION", CrusoeNavActivity.NotDefined);
+		//si action==RouteEdit muestra los waypoints de la ruta en cuestion
+		//sino muestra el listado de rutas.
 		if(p==null)
 		{
 	    	Intent returnIntent = new Intent();
@@ -57,7 +56,7 @@ public class CrusoeListActivity extends ListActivity{
 			names.add(lista[i]);
 			i++;
 		};
-		setListAdapter(new ArrayAdapter<String>(CrusoeListActivity.this,
+		setListAdapter(new ArrayAdapter<String>(RouteListActivity.this,
 				R.layout.goto_view, names));
 
 	}
@@ -67,6 +66,24 @@ public class CrusoeListActivity extends ListActivity{
 		{
 			return;
 		}
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		String res = data.getStringExtra("RESULT");
+		int i=0;
+		if(res.compareTo("NEW")==0)
+		{
+			//agregar nueva ruta!!!
+			String n = data.getStringExtra("NAME");
+			if(n!=null && n!="")
+			{
+				app.routes.add(new RoutePoint(n));
+			}
+			names.add(n);
+			setListAdapter(new ArrayAdapter<String>(RouteListActivity.this,
+					R.layout.goto_view, names));
+			return;
+		}
+		/*
+		//reemplazado por EditRouteActivity
 		if(requestCode == CrusoeNavActivity.WptRC)
 		{
 			//esta seleccionando waypoints
@@ -77,7 +94,8 @@ public class CrusoeListActivity extends ListActivity{
 			finish();
 			return;
 		}
-		if(action == CrusoeListActivity.Edit)
+		*/
+		if(action == CrusoeNavActivity.Edit)
 		{
 	    	data.putExtra("ROUTE", names.get(pos_selected));
 		}
@@ -95,9 +113,14 @@ public class CrusoeListActivity extends ListActivity{
         builder.setTitle(s);
 		if(pos==0)
 		{
+			//ENTRA POR ACA CUANDO AGREGO UNA RUTA.
+			Intent gotoIntent = new Intent(RouteListActivity.this, AddRouteActivity.class);
+			this.startActivityForResult(gotoIntent, CrusoeNavActivity.RouteRC);
+			/*
 			if(action!=Edit)
 			{
-				Intent gotoIntent = new Intent(CrusoeListActivity.this, AddRouteActivity.class);
+				//ENTRA POR ACA CUANDO AGREGO UNA RUTA. Y CUANDO BORRO?
+				Intent gotoIntent = new Intent(RouteListActivity.this, AddRouteActivity.class);
 				this.startActivityForResult(gotoIntent, CrusoeNavActivity.RouteRC);
 			}
 			else
@@ -112,11 +135,11 @@ public class CrusoeListActivity extends ListActivity{
     					param = param + w.getName() + ";";
     				}
     			}
-				Intent gotoIntent = new Intent(CrusoeListActivity.this, WayPointsListActivity.class);
+				Intent gotoIntent = new Intent(RouteListActivity.this, WayPointsListActivity.class);
 				gotoIntent.putExtra("NAMES", param);
 				gotoIntent.putExtra("ACTION", Add);
 				this.startActivityForResult(gotoIntent, CrusoeNavActivity.WptRC);
-			}
+			}*/
 			return;
 		}
 		builder.setItems(R.array.Route_menues, new DialogInterface.OnClickListener() {            
@@ -126,17 +149,17 @@ public class CrusoeListActivity extends ListActivity{
                 //mDoneButton.setText(items[item]);
                	Intent returnIntent = new Intent();
                	returnIntent.putExtra("RESULT",names.get(pos_selected));
-               	int select = NotDefined;
+               	int select = CrusoeNavActivity.NotDefined;
        			switch(item)
        			{
           		case 0:
-               			select = Active;
+               			select = CrusoeNavActivity.Active;
                			break;
                	case 1:
-               			select = Invert;
+               			select = CrusoeNavActivity.Invert;
                			break;
                	case 2:
-               			select = Delete;
+               			select = CrusoeNavActivity.Delete;
                			break;
                	case 3:
                		{
@@ -151,15 +174,23 @@ public class CrusoeListActivity extends ListActivity{
                                     Toast.LENGTH_SHORT).show();
                             return;
                			}
+               			if(names.get(pos_selected).compareTo(app.active_route)==0)
+               			{
+                            Toast.makeText(getBaseContext(), 
+                                    R.string.ActiveRoute, 
+                                    Toast.LENGTH_SHORT).show();
+               				return;
+               			}
                			String param =getResources().getString(R.string.action_Agregar) + ";";
     	    			for(WayPoint w: rp.Locations())
     	    			{
     	    				param = param + w.getName() + ";";
     	    			}
-    	    			action = CrusoeListActivity.Edit;
-						Intent routeIntent = new Intent(CrusoeListActivity.this, CrusoeListActivity.class);
+    	    			action = CrusoeNavActivity.Edit;
+						Intent routeIntent = new Intent(RouteListActivity.this, EditRouteActivity.class);
 						routeIntent.putExtra("NAMES", param);
 						routeIntent.putExtra("ACTION", action);
+						routeIntent.putExtra("ROUTE", rp.getName());
 						startActivityForResult(routeIntent, CrusoeNavActivity.RouteEdit);
                		}
        				return;

@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.xml.sax.InputSource;
@@ -33,6 +34,7 @@ import android.os.Looper;
 import android.support.v4.app.*;
 import android.text.format.Time;
 import android.util.Log;
+import android.widget.Chronometer;
 import android.widget.Toast;
 //esta clase de llama solo una vez, a diferencia de Activity que se reinicia cuando roto el telefono
 public final class CrusoeApplication extends Application implements Runnable{
@@ -50,12 +52,16 @@ public final class CrusoeApplication extends Application implements Runnable{
   	boolean first_loc=true;
   	long tinicio = 0;//tiempo inicial
 	boolean bcerca=false;//indica si se encuentra cerca del waypoint
-	public WayPoint gotoWpt = null;//wpt a donde me dirijo
+	public StatWpt gotoWpt = null;//wpt a donde me dirijo
 	public WayPoint closeWpt = null;//waypoint cercano
-	public RoutePoint ruta_seguir= null;//ruta a seguir
+	//public RoutePoint ruta_seguir= null;//ruta a seguir
+	public ArrayList<StatWpt>ruta_seguir = new ArrayList<StatWpt>();
+	public String active_route="";
+	public int ruta_offset=0;//indice del waypoint actual de la ruta
 	public Location lastWpt = null;
 	public TrackPoint track =  new TrackPoint();
 	double recorrido=0;//distancia recorrida en mts
+
 	public int SaveTrack()
 	{
 		int locs=0;
@@ -117,10 +123,17 @@ public final class CrusoeApplication extends Application implements Runnable{
 	        	FileReader fileReader = new FileReader(a);
 	        	InputSource inputSource = new InputSource(fileReader);          
 	        	xmlReader.parse(inputSource);
-	        	RoutePoint RP = new RoutePoint(a.getName().replaceAll(".gpx", ""));
-	        	routes.add(RP);
-	        	RP.addAll(gpxFileContentHandler.getLocationList());
-	        	f +=RP.Locations().size();
+	        	if(gpxFileContentHandler.getLocationList().size()>0)
+	        	{
+	        		RoutePoint RP = new RoutePoint(a.getName().replaceAll(".gpx", ""));
+	        		routes.add(RP);
+	        		RP.addAll(gpxFileContentHandler.getLocationList());
+	        		f +=RP.Locations().size();
+	        	}
+	        	if(gpxFileContentHandler.getRouteList().size()>0)
+	        	{
+	        		routes.addAll(gpxFileContentHandler.getRouteList());
+	        	}
 	        	fileReader.close();
 	        }
         	Log.i("TAG", String.format("%d waypoints leidos", f));
@@ -131,6 +144,50 @@ public final class CrusoeApplication extends Application implements Runnable{
 	    	// TODO Auto-generated catch block
 	    	Log.i("ERROR", e.getMessage());
 	    }
+	}
+	public static ArrayList<RoutePoint> CargoWayPoints(String archivo)
+	{
+	    try {
+	    	
+	        System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
+	        /*
+	        SAXParserFactory spf = SAXParserFactory.newInstance();
+	        spf.setNamespaceAware(true);
+	        spf.setValidating(false);
+	        SAXParser saxParser = spf.newSAXParser();
+	        XMLReader xmlReader = saxParser.getXMLReader();
+	        */      
+	        	ArrayList<RoutePoint> R = new ArrayList<RoutePoint>();
+	        	File a = new File(archivo);
+	        	int f=0;
+		        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+		        GpxFileContentHandler gpxFileContentHandler = new GpxFileContentHandler();
+		        xmlReader.setContentHandler(gpxFileContentHandler);
+	        	FileReader fileReader = new FileReader(a);
+	        	InputSource inputSource = new InputSource(fileReader);          
+	        	xmlReader.parse(inputSource);
+	        	if(gpxFileContentHandler.getLocationList().size()>0)
+	        	{
+	        		RoutePoint RP = new RoutePoint(a.getName().replaceAll(".gpx", ""));
+	        		R.add(RP);
+	        		RP.addAll(gpxFileContentHandler.getLocationList());
+	        		f +=RP.Locations().size();
+	        	}
+	        	if(gpxFileContentHandler.getRouteList().size()>0)
+	        	{
+	        		R.addAll(gpxFileContentHandler.getRouteList());
+	        	}
+	        	fileReader.close();
+        	Log.i("TAG", String.format("%d waypoints leidos", f));
+        	return R;
+	    }catch (SAXException e) {
+	    	// TODO Auto-generated catch block
+	    	Log.i("ERROR", e.getMessage());
+	    } catch (IOException e) {
+	    	// TODO Auto-generated catch block
+	    	Log.i("ERROR", e.getMessage());
+	    }
+	    return null;
 	}
 	public WayPoint CloseWpt(float dist)
 	{
@@ -177,6 +234,21 @@ public final class CrusoeApplication extends Application implements Runnable{
 			}
 		}
 		return null;
+	}
+	public String getLocationNames()
+	{
+		String res=";";
+
+		for(RoutePoint r: routes)
+		{
+			for(WayPoint w: r.Locations())
+			{
+				if(!res.contains(";" + w.getName() + ";"))
+					res = res + w.getName() + ";";
+			}
+		}
+		res = res.substring(1, res.length());
+		return res;
 	}
 	public RoutePoint getRoute(String n)
 	{
@@ -265,7 +337,6 @@ public final class CrusoeApplication extends Application implements Runnable{
         	 */
 			if(loc==null)
 				return;
-			long tiempo=0;
  
                 try { 
                     if (first_loc==true) {
@@ -299,11 +370,14 @@ public final class CrusoeApplication extends Application implements Runnable{
                             	closeWpt = CloseWpt(200);
                             	
                 		}
+                		else
+                			rec=0;
                 	}
                 	if(gotoWpt!=null)
                 	{
                 		//si se acerca a mas de 50 mts y luego se aleja 100 asumo que llegó al Waypoint
-                		float dist = gotoWpt.distanceTo(loc);
+                		float dist = gotoWpt.getWpt().distanceTo(loc);
+                		gotoWpt.addDist((float)rec);
                 		if(dist<100)
                 		{
                 			if(!bcerca)
@@ -311,7 +385,7 @@ public final class CrusoeApplication extends Application implements Runnable{
         			            //Toast.makeText(getBaseContext(), 
         			            //        R.string.msg_approach + gotoWpt.getName(), 
         			            //        Toast.LENGTH_SHORT).show();
-                				sendNotification(gotoWpt);
+                				sendNotification(gotoWpt.getWpt());
                 				
                 			}
                 			bcerca = true;
@@ -324,104 +398,26 @@ public final class CrusoeApplication extends Application implements Runnable{
                 			track.StopSegment();
                 			if(ruta_seguir!=null)
                 			{
-                				gotoWpt = (WayPoint)ruta_seguir.Locations().toArray()[0];
-                				ruta_seguir.Locations().remove(gotoWpt);
-                				if(ruta_seguir.Locations().isEmpty())
+                				if(ruta_offset<ruta_seguir.size())
+                				{
+                					 ((StatWpt)ruta_seguir.get(ruta_offset++)).Terminado(true);
+                					gotoWpt = (StatWpt)ruta_seguir.toArray()[ruta_offset];
+                				}
+                				//ruta_seguir.Locations().remove(gotoWpt);
+                				//if(ruta_seguir.Locations().isEmpty())
+                				if(ruta_offset>=ruta_seguir.size())
+                				{//termino la ruta
                 					ruta_seguir = null;//destruyo
+                					ruta_offset=0;
+                					active_route="";
+                					gotoWpt=null;
+                				}
                 				track.StartSegment();
                 			}
                 		}
                 	}
                 		
-                		
-                	Intent t = new Intent();
-                	t.setAction(CrusoeApplication.CRUSOE_LOCATION_INTENT);
-                	
-                	//debo agregar a intent los datos de Location
-                	if(gotoWpt!=null)
-                	{
-                		float distto=loc.distanceTo(gotoWpt);
-                		t.putExtra("NAME", gotoWpt.getName());
-                		if(distto>1000)
-                		{
-                			t.putExtra("DISTTO", String.format("%.2f KM", distto/1000));
-                		}
-                		else
-                		{
-                			t.putExtra("DISTTO", String.format("%d mts", (int)distto));
-                		}
-                	}
-            		if(recorrido>1000.0)
-            		{
-            			//t.putExtra("DISTTO", String.format("%.2f KM", distto/1000));
-                    	t.putExtra("TRAVELLED", String.format("%.2f KM", recorrido/1000));//recorrido
-            		}
-            		else
-            		{
-            			//t.putExtra("DISTTO", String.format("%d mts", (int)distto));
-                    	t.putExtra("TRAVELLED", String.format("%d mts", (int)recorrido));//recorrido
-            		}
-                	t.putExtra("LATITUD", loc.getLatitude());//loc.convert(loc.getLatitude(), loc.FORMAT_MINUTES));
-                	t.putExtra("LONGITUD", loc.getLongitude());//loc.convert(loc.getLongitude(), loc.FORMAT_MINUTES));
-                	if(System.currentTimeMillis()>=tinicio)
-                	{
-                		tiempo = System.currentTimeMillis() - tinicio;
-                		if(tiempo<0)
-                		{
-                			tinicio = System.currentTimeMillis();
-                			tiempo=0;
-                		}
-                    	SimpleDateFormat sdf=null;
-                    	if(tiempo>=3600)
-                    		sdf = new SimpleDateFormat("HH:mm:ss");
-                    	else
-                    	{
-                    		if(tiempo>60)
-                    			sdf = new SimpleDateFormat("mm:ss");
-                    		else
-                    			sdf = new SimpleDateFormat("ss");
-                    	}
-                		t.putExtra("TRANSCURRIDO", sdf.format(new Date((long)tiempo)));
-                	}
-                	if(loc.getSpeed()>0)
-                	{
-                    	double eta = (double)recorrido/loc.getSpeed();
-                    	SimpleDateFormat sdf=null;
-                    	if(eta>=3600)
-                    		sdf = new SimpleDateFormat("HH:mm:ss");
-                    	else
-                    	{
-                    		if(eta>60)
-                    			sdf = new SimpleDateFormat("mm:ss");
-                    		else
-                    			sdf = new SimpleDateFormat("ss");
-                    	}
-                		t.putExtra("ETA", sdf.format(new Date((long)eta*1000)));//tiempo estimado de arrivo
-                	}
-                	else
-                		t.putExtra("ETA", "-");//tiempo estimado de arrivo
-                	if(loc.hasAltitude())
-                		t.putExtra("ELEVACION", loc.getAltitude());//mts sobre el nivel del mar
-                	if(loc.hasAccuracy())
-                		t.putExtra("ACCURACY", loc.getAccuracy());
-                	if(loc.hasBearing())
-                	{
-                		t.putExtra("COURSE", loc.getBearing());//0-360. direccion actual
-                		if(gotoWpt!=null)
-                			t.putExtra("BEARING", loc.bearingTo(gotoWpt));//direccion al punto
-                	}
-                    if(loc.hasSpeed())
-                    {//esta en mts/seg.
-                    	double speed = loc.getSpeed()*3.6;
-                    	t.putExtra("SPEED", String.format("%.2f", speed));//*3600/1000 -> KM/h
-                    }
-                    else
-                    {
-                    	double speed = (rec*3600)/(loc.getTime() - lastWpt.getTime());                    	
-                    	t.putExtra("SPEED", String.format("%.2f", speed));
-                    }
-                    t.putExtra("PROVIDER", loc.getProvider());
-    				sendBroadcast(t);
+                	sendMessage(loc);
                 	//File root = Environment.getExternalStorageDirectory();    
                     first_loc=false;
                 }
@@ -429,7 +425,7 @@ public final class CrusoeApplication extends Application implements Runnable{
                 {
                 	Toast.makeText(getBaseContext(), 
                 			"Illegal Argument " + 
-                					String.format("%.2f %.2f %d %t", loc.getLatitude(),loc.getLongitude(), recorrido, tiempo), 
+                					String.format("%.2f %.2f %d", loc.getLatitude(),loc.getLongitude(), recorrido), 
                 			Toast.LENGTH_LONG).show();
                 }
                 catch(Exception e)
@@ -438,6 +434,102 @@ public final class CrusoeApplication extends Application implements Runnable{
                     		"onLocationChanged: " + e.getMessage(), 
                             Toast.LENGTH_SHORT).show();
                 }			
+		}
+		void sendMessage(Location loc)
+		{
+        	Intent t = new Intent();
+        	t.setAction(CrusoeApplication.CRUSOE_LOCATION_INTENT);
+        	
+        	//debo agregar a intent los datos de Location
+        	if(gotoWpt!=null)
+        	{
+        		float distto=loc.distanceTo(gotoWpt.getWpt());
+        		t.putExtra("NAME", gotoWpt.getName());
+        		if(distto>1000)
+        		{
+        			t.putExtra("DISTTO", String.format(Locale.US, "%.2f KM", distto/1000));
+        		}
+        		else
+        		{
+        			t.putExtra("DISTTO", String.format("%d mts", (int)distto));
+        		}
+        	}
+    		if(recorrido>1000.0)
+    		{
+    			//t.putExtra("DISTTO", String.format("%.2f KM", distto/1000));
+            	t.putExtra("TRAVELLED", String.format(Locale.US, "%.2f KM", recorrido/1000));//recorrido
+    		}
+    		else
+    		{
+    			//t.putExtra("DISTTO", String.format("%d mts", (int)distto));
+            	t.putExtra("TRAVELLED", String.format("%d mts", (int)recorrido));//recorrido
+    		}
+        	t.putExtra("LATITUD", loc.getLatitude());//loc.convert(loc.getLatitude(), loc.FORMAT_MINUTES));
+        	t.putExtra("LONGITUD", loc.getLongitude());//loc.convert(loc.getLongitude(), loc.FORMAT_MINUTES));
+        	if(System.currentTimeMillis()>=tinicio)
+        	{
+        		long tiempo = System.currentTimeMillis() - tinicio;
+        		if(tiempo<0)
+        		{
+        			tinicio = System.currentTimeMillis();
+        			tiempo=0;
+        		}
+        		Chronometer sdf = new Chronometer(getApplicationContext());
+        		sdf.setFormat("HH:mm:ss");
+        		sdf.setBase(tiempo);
+            	/*SimpleDateFormat sdf=null;
+        		sdf = new SimpleDateFormat("HH:mm:ss 'GMT'", Locale.US);
+            	if(tiempo>=3600000L)
+            		sdf = new SimpleDateFormat("HH:mm:ss");
+            	else
+            	{
+            		if(tiempo>60)
+            			sdf = new SimpleDateFormat("mm:ss");
+            		else
+            			sdf = new SimpleDateFormat("ss");
+            	}
+        		t.putExtra("TRANSCURRIDO", sdf.format(new Date((long)tiempo)));*/
+        		t.putExtra("TRANSCURRIDO", tiempo);
+        	}
+        	if(loc.getSpeed()>0)
+        	{
+            	double eta = (double)recorrido/loc.getSpeed();
+            	SimpleDateFormat sdf=null;
+            	if(eta>=3600)
+            		sdf = new SimpleDateFormat("HH:mm:ss");
+            	else
+            	{
+            		if(eta>60)
+            			sdf = new SimpleDateFormat("mm:ss");
+            		else
+            			sdf = new SimpleDateFormat("ss");
+            	}
+        		t.putExtra("ETA", sdf.format(new Date((long)eta*1000)));//tiempo estimado de arrivo
+        	}
+        	else
+        		t.putExtra("ETA", "-");//tiempo estimado de arrivo
+        	if(loc.hasAltitude())
+        		t.putExtra("ELEVACION", loc.getAltitude());//mts sobre el nivel del mar
+        	if(loc.hasAccuracy())
+        		t.putExtra("ACCURACY", loc.getAccuracy());
+        	if(loc.hasBearing())
+        	{
+        		t.putExtra("COURSE", loc.getBearing());//0-360. direccion actual
+        		if(gotoWpt!=null)
+        			t.putExtra("BEARING", loc.bearingTo(gotoWpt.getWpt()));//direccion al punto
+        	}
+            if(loc.hasSpeed())
+            {//esta en mts/seg.
+            	double speed = loc.getSpeed()*3.6;
+            	t.putExtra("SPEED", String.format(Locale.US, "%.2f", speed));//*3600/1000 -> KM/h
+            }
+            else
+            {
+            	double speed = ((lastWpt.distanceTo(loc))*3.6)/(loc.getTime() - lastWpt.getTime());                    	
+            	t.putExtra("SPEED", String.format(Locale.US, "%.2f", speed));
+            }
+            t.putExtra("PROVIDER", loc.getProvider());
+			sendBroadcast(t);
 		}
 		@Override
 		public void onProviderDisabled(String provider) {

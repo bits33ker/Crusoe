@@ -25,6 +25,8 @@ public class DataFragment extends Fragment {
 	TextView txtVel;
 	TextView txtDist;
 	TextView txtWpt;
+	TextView txtCurso;//curso a seguir
+	TextView txtDir;//direccion actual
 
 	WayPoint mLocation = null;
 	private final IntentFilter intentFilter = new IntentFilter(CrusoeNavActivity.CRUSOE_LOCATION_VIEW_INTENT);
@@ -58,14 +60,23 @@ public class DataFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
+		
 		View rootView = null;
+		try{
 		if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
 			rootView = inflater.inflate(R.layout.goto_data, container, false);
 		else
 			rootView = inflater.inflate(R.layout.data_land, container, false);
 		InitializeDataUI(rootView);
-		
+		}
+		catch(ExceptionInInitializerError ie)
+		{
+			Log.i("ERROR", "DataFragment Init: " + ie.getMessage());
+		}
+		catch(Exception e)
+		{
+			Log.i("ERROR", "DataFragment: " + e.getMessage());
+		}
 		return rootView;
 	}
 	@Override
@@ -90,20 +101,59 @@ public class DataFragment extends Fragment {
 	public void onConfigurationChanged(Configuration newConfig) {
 	  super.onConfigurationChanged(newConfig);
 	  
-	  	LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	    View v = null;
-	    ViewGroup g = (ViewGroup)getView();
-	    g.removeAllViewsInLayout();
-	    if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
-	    	v = inflater.inflate(R.layout.goto_data, g);
-		  else
-	    	v = inflater.inflate(R.layout.data_land, g);
-		InitializeDataUI(v);
+		int size = newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if(size == Configuration.SCREENLAYOUT_SIZE_SMALL)
+		{
+			LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View v = null;
+			ViewGroup g = (ViewGroup)getView();
+			g.removeAllViewsInLayout();
+			if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
+				v = inflater.inflate(R.layout.goto_data, g);
+			else
+				v = inflater.inflate(R.layout.data_land, g);
+			InitializeDataUI(v);
+		}
 		if(!registered)
 		{
 			getActivity().registerReceiver(mReceiver, intentFilter);
 			registered = true;
 		}
+	}
+	void setLat(String g)
+	{
+		if(txtLat!=null)
+			txtLat.setText(g);
+	}
+	void setWpt(String g)
+	{
+		if(txtWpt!=null)
+			txtWpt.setText(g);
+	}
+	void setLong(String g)
+	{
+		if(txtLong!=null)
+			txtLong.setText(g);
+	}
+	void setDist(String g)
+	{
+		if(txtDist!=null)
+			txtDist.setText(g);
+	}
+	void setCourse(String g)
+	{
+		if(txtCurso!=null)
+			txtCurso.setText(g);
+	}
+	void setDir(String g)
+	{
+		if(txtDir!=null)
+			txtDir.setText(g);
+	}
+	void setSpeed(String g)
+	{
+		if(txtVel!=null)
+			txtVel.setText(g);
 	}
 	void InitializeDataUI(View rootView)
 	{
@@ -112,12 +162,16 @@ public class DataFragment extends Fragment {
 		txtLong = (TextView) rootView.findViewById(R.id.longitud);
 		txtVel = (TextView) rootView.findViewById(R.id.tiempo);
 		txtDist = (TextView) rootView.findViewById(R.id.recorrido);
+		txtCurso = (TextView) rootView.findViewById(R.id.curso);
+		txtDir = (TextView) rootView.findViewById(R.id.Renglon3);
 				
-		txtLat.setText(R.string.data_latitud);
-		txtLong.setText(R.string.data_longitud);
-		txtVel.setText(R.string.data_speed);
-		txtWpt.setText("");
-		txtDist.setText(R.string.data_distance);
+		setLat(getResources().getString(R.string.data_latitud));
+		setLong(getResources().getString(R.string.data_longitud));
+		setSpeed(getResources().getString(R.string.data_speed));
+		setWpt("");
+		setDist(getResources().getString(R.string.data_distance));
+		setCourse("");
+		setDir(getResources().getString(R.string.data_direction));
 	}
 	String convLat(double dec)
 	{//convierto latitud
@@ -132,7 +186,7 @@ public class DataFragment extends Fragment {
 		int dd = (int)dec;
 		int mm = (int)((dec - dd)*60);
 		int ss = (int)((dec - dd - ((double)mm)/60)*3600);
-		String dms=String.format("%d:%2d:%2d %s", dd, mm, ss, s);
+		String dms=String.format("%02d°%02d'%02d\" %s", dd, mm, ss, s);
 		
 		return dms;
 	}
@@ -149,7 +203,7 @@ public class DataFragment extends Fragment {
 		int dd = (int)dec;
 		int mm = (int)((dec - dd)*60);
 		int ss = (int)((dec - dd - ((double)mm)/60)*3600);
-		String dms=String.format("%d:%2d:%2d %s", dd, mm, ss, s);
+		String dms=String.format("%02d°%02d'%02d\" %s", dd, mm, ss, s);
 		
 		return dms;
 	}
@@ -159,11 +213,15 @@ public class DataFragment extends Fragment {
 		//txtLong.setText("Long: " + intent.getDoubleExtra("LONGITUD", 0.0));
 		String n = intent.getStringExtra("NAME");
 		if(n!=null)
-			txtWpt.setText("GOTO " + n);
-		txtLat.setText( convLat(intent.getDoubleExtra("LATITUD", 0.0)));
-		txtLong.setText(convLong(intent.getDoubleExtra("LONGITUD", 0.0)));
-		txtVel.setText(intent.getStringExtra("SPEED") + " KMh");
-		//txtVel.setText("VEL: " + intent.getStringExtra("SPEED"));
-		txtDist.setText("DIST: " + intent.getStringExtra("TRAVELLED"));
+			setWpt(n);
+		setLat(convLat(intent.getDoubleExtra("LATITUD", 0.0)));
+		setLong(convLong(intent.getDoubleExtra("LONGITUD", 0.0)));
+		//txtVel.setText(intent.getStringExtra("SPEED") + " KMh");
+		setSpeed(CrusoeNavActivity.convMilliSec(intent.getLongExtra("TRANSCURRIDO", 0L)));
+		setDist("DIST: " + intent.getStringExtra("TRAVELLED"));
+		float angle = intent.getFloatExtra("COURSE", (float)0.0);//mLocation.bearingTo(L);
+		setCourse(CompassFragment.convCourse(angle));
+		float bearing = intent.getFloatExtra("BEARING", (float)0.0);//mLocation.bearingTo(L);
+		setDir("DIR: " + CompassFragment.convCourse(intent.getFloatExtra("BEARING", (float)bearing)));
 	}	
 }

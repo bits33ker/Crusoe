@@ -21,13 +21,13 @@ import android.widget.Toast;
 public class CompassFragment extends Fragment {
 	ImageView compassView = null;
 	ImageView sailboatView = null;
-	TextView txtGoto;
-	TextView txtLat;
-	TextView txtLong;
-	TextView txtVel;
-	TextView txtDir;
-	TextView txtDist;
-	TextView txtAcc;
+	TextView txtGoto;//nombre del wpt a donde me dirigjo
+	//TextView txtLat;
+	//TextView txtLong;
+	//TextView txtAcc;
+	TextView txtVel;//velocidad a la que navego
+	TextView txtDir;//Direccion que debo seguir para llegar al wpt
+	TextView txtDist;//distancia al wpt
 
 	WayPoint mLocation = null;
 	float course = 0;//curso actual
@@ -54,14 +54,14 @@ public class CompassFragment extends Fragment {
 
 				float angle = intent.getFloatExtra("COURSE", (float)0.0);//mLocation.bearingTo(L);
 				RotateAnimation rotCompass = null;
-				rotCompass = new RotateAnimation(course, angle, compassView.getWidth()/2, compassView.getHeight()/2);
+				rotCompass = new RotateAnimation(-course, -angle, compassView.getWidth()/2, compassView.getHeight()/2);
 				rotCompass.setFillAfter(true);
 				rotCompass.setFillEnabled(true);
 				compassView.startAnimation(rotCompass);
 
 				float bangle = intent.getFloatExtra("BEARING", (float)0.0);//mLocation.bearingTo(L);
 				RotateAnimation rotSailboat = null;
-				rotSailboat = new RotateAnimation(bearing-course, bangle-angle, compassView.getWidth()/2, compassView.getHeight()/2);
+				rotSailboat = new RotateAnimation(bearing-course, bangle-angle, sailboatView.getWidth()/2, sailboatView.getHeight()/2);
 				rotSailboat.setFillAfter(true);
 				rotSailboat.setFillEnabled(true);
 				sailboatView.startAnimation(rotSailboat);
@@ -87,6 +87,26 @@ public class CompassFragment extends Fragment {
 		}
 	};
 
+	void setGoto(String g)
+	{
+		if(txtGoto!=null)
+			txtGoto.setText(g);
+	}
+	void setSpeed(String dataSpeed)
+	{
+		if(txtVel!=null)
+			txtVel.setText(dataSpeed);
+	}
+	void setDir(String g)
+	{
+		if(txtDir!=null)
+			txtDir.setText(g);
+	}
+	void setDist(String g)
+	{
+		if(txtDist!=null)
+			txtDist.setText(g);
+	}
 	void InitializeCompassUI(View rootView)
 	{
 		txtGoto = (TextView) rootView.findViewById(R.id.Renglon1);
@@ -96,36 +116,38 @@ public class CompassFragment extends Fragment {
 		compassView = (ImageView)rootView.findViewById(R.id.compassView);
 		sailboatView = (ImageView)rootView.findViewById(R.id.sailboatImg);
 		
-		txtGoto.setText("GOTO: -");
-		txtVel.setText("VELOCIDAD: -");
-		txtDir.setText("DIRECCION: -");
-		txtDist.setText("DISTANCIA: -");
+		setGoto("     ");
+		setSpeed(getResources().getString(R.string.data_speed));
+		setDir(getResources().getString(R.string.data_direction));
+		setDist(getResources().getString(R.string.data_distance));
 	}
-	String convCourse(float dec)
+	public static String convCourse(float dec)
 	{//convierto latitud
 		String s="";
+		if(dec<0)
+			dec = 360 + dec;
 		int dd = (int)dec;
 		int mm = (int)((dec - dd)*60);
 		int ss = (int)((dec - dd - ((double)mm)/60)*3600);
-		String dms=String.format("%d:%2d:%2d %s", dd, mm, ss, s);
+		String dms=String.format("%02d°%02d'%02d\"", dd, mm, ss);
 		
 		return dms;
 	}
 	
 	public void setDataText(Intent intent)
 	{
-		txtGoto.setText("GOTO: -");
-		txtDist.setText("DIST: -");
-		txtDir.setText("Dir: " + convCourse(intent.getFloatExtra("COURSE", course)));
-		txtVel.setText("Vel: " + intent.getStringExtra("SPEED") + " KMh");
+		setGoto("GOTO: -");
+		setDist("DIST: -");
+		setDir("CUR: " + convCourse(intent.getFloatExtra("COURSE", course)));
+		setSpeed("Vel: " + intent.getStringExtra("SPEED") + " KMh");
 	}
 	public void setGotoText(Intent intent)
 	{
 		//cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
-		txtGoto.setText(intent.getStringExtra("NAME"));
-		txtDist.setText("Dist " + intent.getStringExtra("DISTTO"));
-		txtDir.setText("Dir: " + convCourse(intent.getFloatExtra("BEARING", (float)bearing)));
-		txtVel.setText("Vel " + intent.getStringExtra("SPEED") + " KMh");
+		setGoto(intent.getStringExtra("NAME"));
+		setDist("DIST " + intent.getStringExtra("DISTTO"));
+		setDir("DIR: " + convCourse(intent.getFloatExtra("BEARING", (float)bearing)));
+		setSpeed("Vel " + intent.getStringExtra("SPEED") + " KMh");
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -133,9 +155,9 @@ public class CompassFragment extends Fragment {
 	{
 		View rootView = null;
 		if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-			rootView = inflater.inflate(R.layout.compass_port, container, false);
-		else
 			rootView = inflater.inflate(R.layout.compass_land, container, false);
+		else
+			rootView = inflater.inflate(R.layout.compass_port, container, false);
 		InitializeCompassUI(rootView);
 		
 		return rootView;
@@ -146,15 +168,19 @@ public class CompassFragment extends Fragment {
 	  super.onConfigurationChanged(newConfig);
 	  try
 	  {
-	  	LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	    View v = null;
-	    ViewGroup g = (ViewGroup)getView();
-	    g.removeAllViewsInLayout();
-	    if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
-	    	v = inflater.inflate(R.layout.compass_port, g);
-		  else
-	    	v = inflater.inflate(R.layout.compass_land, g);
-		InitializeCompassUI(v);
+		int size = newConfig.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if(size == Configuration.SCREENLAYOUT_SIZE_SMALL)
+		{
+			LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	  		View v = null;
+	    	ViewGroup g = (ViewGroup)getView();
+	    	g.removeAllViewsInLayout();
+	    	if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
+	    		v = inflater.inflate(R.layout.compass_port, g);
+		  	else
+			  	v = inflater.inflate(R.layout.compass_land, g);
+			InitializeCompassUI(v);
+		}
 		if(!registered)
 		{
 			getActivity().registerReceiver(mReceiver, intentFilter);

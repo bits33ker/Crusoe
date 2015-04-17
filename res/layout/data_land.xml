@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -9,70 +9,79 @@
 
     <TextView
         android:id="@+id/waypoint"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:text="GOTO"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/PosicionDimension" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/latitud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/waypoint"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/longitud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/latitud"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/PosicionDimension" />
+
+    <TextView
+        android:id="@+id/recorrido"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/longitud"
+        android:text="KM      "
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/large_dim" />
+
+    <TextView
+        android:id="@+id/tiempo"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/recorrido"
+        android:layout_weight="1"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/large_dim" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_weight="0.50"
-            android:orientation="vertical" >
+    <TextView
+        android:id="@+id/curso"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tiempo"
+        android:layout_centerHorizontal="false"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/large_dim" />
 
-            <TextView
-                android:id="@+id/latitud"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/DMS"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="@dimen/PosicionDimension" />
+    <TextView
+        android:id="@+id/Renglon3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/curso"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/DMS"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="@dimen/large_dim" />
 
-            <TextView
-                android:id="@+id/recorrido"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="KM    "
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="@dimen/PosicionDimension" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_weight="0.50"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/longitud"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/DMS"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="@dimen/PosicionDimension" />
-
-            <TextView
-                android:id="@+id/tiempo"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/DMS"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="@dimen/PosicionDimension" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
