@@ -48,8 +48,14 @@
     <string name="NotImplemented">No se ha implementado aun</string>
     <string name="RouteNotExist">La ruta indicada no existe</string>
     <string name="wpt_name">WayPoint</string>
-    <string name="msg_approach">Aproximandose a </string>
+    <string name="msg_approach">Aproximandose a  </string>
     <string name="ActiveRoute">No se puede Editar o Borrar Ruta Activa</string>
     <string name="action_import">Importar</string>
     <string name="msg_no_route">No hay Ruta Seleccionada</string>
+    <string name="metrics">Sistema Metrico</string>
+    <string name="nautic_miles">Millas Nauticas</string>
+    <string name="Cfg">Configuracion</string>
+    <string name="cfg_nautic">NM</string>
+    <string name="cfg_km">KM</string>
+    <string name="action_loc">Posicion</string>
 </resources>

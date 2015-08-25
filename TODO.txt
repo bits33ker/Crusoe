@@ -39,18 +39,35 @@ VERSIONES:
 0.1.0.1:	
 	Poder agregar Rutas y WayPoints.
 	Que el sistema elija el punta mas cercano de una ruta y se dirija ahí.
-1.2.0.0: Actual
+1.2.0.0: Google Play
 +	WAYPOINTS: poder importar waypoints de (http://www.cibernautica.com.ar/derrote/cargarcolonia.htm).
 +	RUTAS: Creación de  rutas.
 +	Versiones para distintos modelos y tamaños de Android.
 +	TRAYECTO: XML que indica un trayecto seguido.
 +	ESTADISTICAS: Fragment. Poder ver los tiempos de cada pierna, distancias, ...
 +	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo. OK
++	Primer Version subida a Google Play.
++	Version salvada en Github.
+1.2.0.1:Ultima subida
++	Se agrega configuracion de Sistema Metrico. Chequear que se vea en todos los Fragments
++	Crear clase base de Actividad y heredarla para los View para Small, Medium y Tablet. Check
++	Verificar que cree Waypoints.gpx si no existe.
++	Ordenar la lista de Waypoints.
++	Busqueda de waypoints con teclado y por Rutas con AutoCompleteTextView.
++	En Cels mas grandes usar StatFragment para mostrar WaypointsListActivity y RouteActivity.
++	Poder agregar Descripcion a cada Waypoint.
 
-			
+1.3.0.0:Actual (en desarrollo)			
++	MAPAS : Trabajar con OSMDroid. Crear mapas con Mobile Atlas Creator. Trabajar con Mapas online y Offline.
++	Visualizacion de Tracks, Rutas y WayPoints en los Mapas.
++	Iconos: Se agregaron iconos para los distintos WayPoints.
+
 ROADMAP:
++	Agregar distancia al Bearing para saber el desvio.
++	Indicaciones: bajar las indicaciones en KML del Google, convertirlas a gpx y usar esto para guiarme.
++	Ver que el programa pueda entneder los kml o en su defecto los gpx convertidos.
 +	SATELITES: Visualizacion de Satelites.
-+	MAPAS : Fragment. poder visualizar mapas. + adelante
++ 	Base de Datos para Waypoints y ¿Mapas? 
 +	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.
 +	WEB: Servidor web donde poder subir las cosas.
 

@@ -52,4 +52,12 @@
     <string name="ActiveRoute">Cannot Edit or Delete Active Route</string>
     <string name="action_import">Import</string>
     <string name="msg_no_route">No Route Selected</string>
+    <string name="metrics">Metric System</string>
+    <string name="nautic_miles">Nautic Miles</string>
+    <string name="Cfg">Configuration</string>
+    <string name="cfg_nautic">NM</string>
+    <string name="cfg_km">KM</string>
+    <string name="action_loc">Location</string>
+    <string name="Online">Online</string>
+    <string name="Offline">Offline</string>
 </resources>

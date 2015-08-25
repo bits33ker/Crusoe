@@ -10,18 +10,18 @@
         android:layout_width="0px"
         android:layout_height="fill_parent"
         android:layout_weight="3"
-        class="com.muke.crusoe.DataFragment" />
+        class="com.crusoe.nav.DataFragment" />
 
     <fragment
         android:id="@+id/compass_large"
         android:layout_width="0px"
         android:layout_height="fill_parent"
         android:layout_weight="4"
-        class="com.muke.crusoe.CompassFragment" />
+        class="com.crusoe.nav.CompassFragment" />
     <fragment
         android:id="@+id/stats_large"
         android:layout_width="0px"
         android:layout_height="fill_parent"
         android:layout_weight="3"
-        class="com.muke.crusoe.StatFragment" />
+        class="com.crusoe.nav.StatFragment" />
 </LinearLayout>
