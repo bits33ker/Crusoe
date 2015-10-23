@@ -1,4 +1,9 @@
 package com.crusoe.nav;
+import com.crusoe.nav.large.CrusoeLargeActivity;
+import com.crusoe.nav.normal.CrusoeNormalActivity;
+import com.crusoe.nav.small.CrusoeSmallActivity;
+import com.crusoe.nav.xlarge.Crusoe10Activity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -29,10 +34,30 @@ public class LaunchActivity extends Activity {
         }
 		else
 		{
-			Intent intent = new Intent(this, CrusoeDefaultActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            finish();
-            startActivity(intent);		
+			if(size == Configuration.SCREENLAYOUT_SIZE_NORMAL)
+			{
+				Intent intent = new Intent(this, CrusoeNormalActivity.class);
+	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	            finish();
+	            startActivity(intent);		
+	        }
+			else
+			{
+				if(size == Configuration.SCREENLAYOUT_SIZE_LARGE)
+				{
+					Intent intent = new Intent(this, CrusoeLargeActivity.class);
+		            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		            finish();
+		            startActivity(intent);		
+		        }
+				else
+				{
+					Intent intent = new Intent(this, Crusoe10Activity.class);
+					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					finish();
+					startActivity(intent);
+				}
+			}
 		}
 
 	}

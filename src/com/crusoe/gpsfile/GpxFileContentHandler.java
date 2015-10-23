@@ -127,6 +127,16 @@ public class GpxFileContentHandler implements ContentHandler {
         			ruta.setName(currentValue.trim());
         	}
         }
+        if(localName.equalsIgnoreCase("desc"))
+        {
+        	if(location!=null)
+        		location.setDescription(currentValue.trim());
+        	else
+        	{
+        		if(ruta!=null)
+        			ruta.setDescription(currentValue.trim());
+        	}
+        }
         if(localName.equalsIgnoreCase("sym"))
         {
         	if(location!=null)

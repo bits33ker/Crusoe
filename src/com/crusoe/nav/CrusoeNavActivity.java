@@ -5,11 +5,14 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+
 import com.crusoe.nav.ConfigDialog.ConfigDialogListener;
 import com.crusoe.nav.StatWpt;
 import com.crusoe.nav.RouteListActivity;
 import com.crusoe.nav.FileChooser;
 import com.crusoe.nav.CrusoeApplication.thread_status;
+import com.crusoe.nav.small.CrusoeSmallActivity;
 import com.crusoe.gpsfile.GpxWriter;
 import com.crusoe.gpsfile.RoutePoint;
 import com.crusoe.gpsfile.WayPoint;
@@ -18,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -25,6 +29,7 @@ import android.os.Environment;
 import android.os.Process;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
@@ -37,7 +42,9 @@ import android.widget.TabHost;
 import android.widget.Toast;
 import android.widget.TabHost.OnTabChangeListener;
 
-public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogListener {
+public abstract class CrusoeNavActivity extends FragmentActivity 
+	implements ConfigDialogListener, OnTabChangeListener, OnPageChangeListener 
+{
 	/*
 	 * Esta es la clase base principal.
 	 * Desde aqui se manejan los eventos y
@@ -45,13 +52,19 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 	 * Los fragments se manejan en la clase heredera y depende del tamaño
 	 */
 	
-	
+	public static final String PREFS_CFG_MAPS = "cfg_maps";
+	public static final String PREFS_MAP_SRC = "cfg_map_src";
+	public static final int MAPQUESTOSM = 0;
+	public static final int MAPNIK = 1;
+	public static final String PREFS_CFG_METRIC = "cfg_metric";
+	public static final String PREFS_NAME = "com.crusoe.nav.prefs";
+	public static final String PREFS_MAP_ZOOM = "map_zoom";
+	public static SharedPreferences mPrefs;//preferencia de configuracion
 	//clases para el manejo de los Fragments para SMALL
-	//private CrusoeNavPagerAdapter mAdapter;
-    //private ViewPager mViewPager;
-    //private TabHost mTabHost;
+	protected FragmentPagerAdapter mAdapter;
+    protected ViewPager mViewPager;
+    protected TabHost mTabHost;
     
-	//WayPoint gotoWpt = null;
 	WayPoint markWpt = null;
 	boolean bQuit = false;
 	public final static int MarkRC=1;//id para el mark
@@ -81,7 +94,41 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 	private final CrusoeLocationReceiver locReceiver = new CrusoeLocationReceiver();
 	private boolean locRegistered=false;
 	
-	private class CrusoeLocationReceiver extends BroadcastReceiver{
+    // Method to add a TabHost
+    protected static void AddTab(CrusoeSmallActivity activity, TabHost tabHost, TabHost.TabSpec tabSpec) {
+        tabSpec.setContent(new CrusoeTabFactory(activity));
+        tabHost.addTab(tabSpec);
+    }
+
+    protected abstract void initialiseTabHost();
+
+    @Override
+	public void onPageScrollStateChanged(int arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onPageScrolled(int arg0, float arg1, int arg2) {
+		// TODO Auto-generated method stub
+	       int pos = this.mViewPager.getCurrentItem();
+	       this.mTabHost.setCurrentTab(pos);
+	}
+
+	@Override
+	public void onPageSelected(int arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onTabChanged(String arg0) {
+		// TODO Auto-generated method stub
+        int pos = this.mTabHost.getCurrentTab();
+        this.mViewPager.setCurrentItem(pos);
+	}
+
+    private class CrusoeLocationReceiver extends BroadcastReceiver{
 		//recibe los cambios de posicion del gps
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -169,6 +216,10 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 				w++;
 			}
 		}
+		//si habia una ruta activa termina y me dirijo al goto
+		app.ruta_seguir=null;
+		app.ruta_offset=0;
+		
 		app.track.StartSegment();
 		if(mLocation!=null)
 			app.gotoWpt = new StatWpt(p);
@@ -245,7 +296,7 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 	}
 	
     // Method to add a TabHost
-    private static void AddTab(CrusoeNavActivity activity, TabHost tabHost, TabHost.TabSpec tabSpec) {
+    protected static void AddTab(CrusoeNavActivity activity, TabHost tabHost, TabHost.TabSpec tabSpec) {
         tabSpec.setContent(new CrusoeTabFactory(activity));
         tabHost.addTab(tabSpec);
     }
@@ -316,6 +367,8 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		try{
+			mPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
 			Log.i("TAG", "CrusoeNavActivity.onCreate");
 			if(!locRegistered)
 			{
@@ -335,8 +388,10 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 			
 	        
 			CrusoeApplication app = ((CrusoeApplication)getApplication());
-	        app.cfg_metric = getBaseContext().getString(R.string.cfg_km);
-	        app.cfg_maps = getBaseContext().getString(R.string.Offline);
+	        app.cfg_metric = mPrefs.getString(PREFS_CFG_METRIC, getBaseContext().getString(R.string.cfg_km));
+	        app.cfg_maps = mPrefs.getString(PREFS_CFG_MAPS, getBaseContext().getString(R.string.Online));
+	        app.map_src = mPrefs.getInt(PREFS_MAP_SRC, MAPQUESTOSM);// o MAPNIK
+	        app.map_zoom = mPrefs.getInt(PREFS_MAP_ZOOM, 15);
 			if(app.getThreadStatus()==thread_status.thStart)
 			{
 				app.StartThread();
@@ -382,14 +437,14 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
                 android.os.Environment.MEDIA_MOUNTED))
 		{
 			String res = data.getStringExtra("RESULT");//nombre del archivo a cargar
-			ArrayList<RoutePoint> R = CrusoeApplication.CargoWayPoints(res);
-			if(R!=null)
+			ArrayList<RoutePoint> Rt = CrusoeApplication.CargoWayPoints(res);
+			if(Rt!=null)
 			{
-				for(RoutePoint RP:R)
+				for(RoutePoint RP:Rt)
 				{
-					SaveRoute(RP, RP.getName() + ".gpx");
+					SaveRoute(RP, Environment.getExternalStorageDirectory() + getBaseContext().getString(R.string.wpt_dir), RP.getName() + ".gpx");
 				}
-				app.routes.addAll(R);
+				app.routes.addAll(Rt);
 			}
 		}
 	}
@@ -534,7 +589,7 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 	    			p.setLatitude(data.getDoubleExtra("LATITUD", 0.0));
 	    			p.setLongitude(data.getDoubleExtra("LONGITUD", 0.0));
 	    			ruta.addWayPoint(p);
-	    			SaveRoute(ruta, "waypoints.gpx");
+	    			SaveRoute(ruta, Environment.getExternalStorageDirectory() + getBaseContext().getString(R.string.wpt_dir), "waypoints.gpx");
 				}
 				break;
 				case CrusoeNavActivity.Active://activar
@@ -597,11 +652,12 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
     	}*/
     	return;
     }
-    public static void SaveRoute(RoutePoint ruta, String filename)
+    public static void SaveRoute(RoutePoint ruta, String directory, String filename)
     {
 		try {
-			File WaypointsDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Waypoints");
-			File gpxfile = new File(WaypointsDir, filename);
+			//File WaypointsDir =  new File(Environment.getExternalStorageDirectory() + getBaseContext().getString(R.string.wpt_dir));
+			File gpxfile = new File(directory, filename);
+			//File gpxfile = new File(filename);
 			GpxWriter csv = new GpxWriter(gpxfile);
 			csv.writeHeader();
 			int i=0;
@@ -773,32 +829,7 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
     	}
     	return true;
     }
-	/*
-    @Override
-	public void onPageScrollStateChanged(int arg0) {
-		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void onPageScrolled(int arg0, float arg1, int arg2) {
-		// TODO Auto-generated method stub
-	       int pos = this.mViewPager.getCurrentItem();
-	       this.mTabHost.setCurrentTab(pos);
-	}
-
-	@Override
-	public void onPageSelected(int arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onTabChanged(String arg0) {
-		// TODO Auto-generated method stub
-        int pos = this.mTabHost.getCurrentTab();
-        this.mViewPager.setCurrentItem(pos);
-	}*/
 	public static String convMilliSec(long milli)
 	{//convierto latitud
 
@@ -818,7 +849,23 @@ public class CrusoeNavActivity extends FragmentActivity implements ConfigDialogL
 		if(res.contentEquals("Offline") || res.contentEquals("Online"))
 			app.cfg_maps = res;
 		else
-			app.cfg_metric = res;
+		{
+			if(res.contentEquals("MAPQUEST"))
+				app.map_src = CrusoeNavActivity.MAPQUESTOSM;
+			else
+			{
+				if(res.contentEquals("MAPNIK"))
+					app.map_src = CrusoeNavActivity.MAPNIK;	
+				else
+					app.cfg_metric = res;
+			}
+		}
+        final SharedPreferences.Editor edit = mPrefs.edit();
+        edit.putString(PREFS_CFG_MAPS, app.cfg_maps);
+        edit.putInt(PREFS_MAP_SRC, app.map_src);
+        edit.putString(PREFS_CFG_METRIC, app.cfg_metric);
+        edit.putInt(PREFS_MAP_ZOOM, app.map_zoom);
+        edit.commit();
 		
 	}
 

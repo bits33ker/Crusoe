@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.crusoe.nav.StatWpt;
+import com.crusoe.nav.R;
+import com.crusoe.nav.R.array;
+import com.crusoe.nav.R.id;
+import com.crusoe.nav.R.layout;
 import com.crusoe.gpsfile.WayPoint;
 
 import android.app.AlertDialog;
@@ -71,7 +74,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 		}
 	};
 	@Override
-	void UpdateMapView() {
+	protected void UpdateMapView() {
 		// TODO Auto-generated method stub
 		try
 		{
@@ -126,8 +129,11 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
         @Override
         public View getView(int pos, View convertView, ViewGroup parent) {
             View v = convertView;
-    		Log.i("TAG", "StatFragment.getView");
+        	try {
+        	if(pos<0 && pos >= items.size())
+        		return v;
             if (v == null) {
+        		Log.e("GPS", "StatFragment.getView NULL");
                 LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.stat_wpt, null);
                 wptHolder = new StatWptViewHolder();
@@ -135,8 +141,17 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
                 wptHolder.eta = (TextView)v.findViewById(R.id.wpt_eta);
                 wptHolder.dist = (TextView)v.findViewById(R.id.wpt_dist);
                 v.setTag(wptHolder);
-            } else wptHolder = (StatWptViewHolder)v.getTag(); 
-
+            } 
+            else 
+            {    		
+            	wptHolder = (StatWptViewHolder)v.getTag(); 
+            	if(wptHolder==null)
+            	{
+            		Log.e("GPS", "StatFragment. Holder==NULL");
+            		return v;
+            	}
+            }
+            
             StatWpt sw = items.get(pos);
 
             if (sw != null && sw.getWpt()!=null) {
@@ -148,34 +163,16 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
             		if(pos<app.ruta_offset)
             		{
             			float d = sw.getDist();
-            			/*
-            			if(d>1000)
-            			{
-            				wptHolder.dist.setText(String.format("%.2f KM", d/1000));//(sw.getDist());
-            			}
-            			else
-            			{
-            				wptHolder.dist.setText(String.format("%d mts", (int)d));//(sw.getDist());
-            			}*/
         				wptHolder.dist.setText(app.Distance(d));//(sw.getDist());
                			wptHolder.eta.setText(sdf.format(new Date((long)sw.getEta()*1000)));
             		}
             		if(pos==app.ruta_offset)
             		{
             			distto = mLocation.distanceTo(sw.getWpt());
-            			/*
-            			if(distto>1000)
-            			{
-            				wptHolder.dist.setText(String.format("%.2f KM", distto/1000));//(sw.getDist());
-            			}
-            			else
-            			{
-            				wptHolder.dist.setText(String.format("%d mts", (int)distto));//(sw.getDist());
-            			}*/
         				wptHolder.dist.setText(app.Distance(distto));//(sw.getDist());
-                		if(speed!=0)
+                		if(getSpeed()!=0)
                 		{
-                			float eta = (float) ((distto*3.6)/speed);
+                			float eta = (float) ((distto*3.6)/getSpeed());
                 			//wptHolder.eta.setText(sdf.format(new Date((long)eta*1000)));
                 			wptHolder.eta.setText(CrusoeNavActivity.convMilliSec((long)(1000*eta)));
                 		}
@@ -186,19 +183,10 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
                 	{
                         StatWpt sw2 = items.get(pos-1);
             			distto += sw2.getWpt().distanceTo(sw.getWpt());
-            			/*
-            			if(distto>1000)
-            			{
-            				wptHolder.dist.setText(String.format("%.2f KM", distto/1000));//(sw.getDist());
-            			}
-            			else
-            			{
-            				wptHolder.dist.setText(String.format("%d mts", (int)distto));//(sw.getDist());
-            			}*/
         				wptHolder.dist.setText(app.Distance(distto));//(sw.getDist());
-                		if(speed!=0)
+                		if(getSpeed()!=0)
                 		{
-                			float eta = (float) ((distto*3.6)/speed);
+                			float eta = (float) ((distto*3.6)/getSpeed());
                 			wptHolder.eta.setText(CrusoeNavActivity.convMilliSec((long)(1000*eta)));
                 		}
                 		//else
@@ -207,19 +195,16 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
             	}
             	else
         		{
+            		Log.e("GPS", "StatFragment item==NULL");
         			wptHolder.eta.setText(CrusoeNavActivity.convMilliSec((long)(1000*sw.getEta())));
-        			/*
-        			if(sw.getDist()>1000)
-        			{
-        				wptHolder.dist.setText(String.format("%.2f KM", sw.getDist()/1000));//(sw.getDist());
-        			}
-        			else
-        			{
-        				wptHolder.dist.setText(String.format("%d mts", (int)sw.getDist()));//(sw.getDist());
-        			}*/
     				wptHolder.dist.setText(app.Distance(sw.getDist()));//(sw.getDist());
         		}
             }
+        	}
+        	catch(Exception e)
+        	{
+        		Toast.makeText(getContext(), "StatFragment: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        	}
 
             return v;
         }
@@ -241,8 +226,13 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 		{
 			wptlist.addAll(app.ruta_seguir);
 		}
+		else
+		{
+			if(app.gotoWpt!=null)
+				wptlist.add(app.gotoWpt);
 		//else
 		//	wptlist.add(new StatWpt());//names.add("STATS");
+		}
 			
 		rootView = inflater.inflate(R.layout.stat_view, container, false);
 		if(rootView==null)

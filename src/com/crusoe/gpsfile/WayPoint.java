@@ -52,6 +52,10 @@ public class WayPoint extends Location {
 	{
 		return description;
 	}
+	public void setDescription(String d)
+	{
+		description = d;
+	}
 	public String getLatDMS()
 	{
 		double l=this.getLatitude();

@@ -1,15 +1,10 @@
 package com.crusoe.nav;
 
-import com.crusoe.gpsfile.WayPoint;
+import com.crusoe.nav.R;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +17,6 @@ public class CompassFragment extends CrusoeNavFragments {
 	ImageView compassView = null;
 	ImageView sailboatView = null;
 	TextView txtGoto;//nombre del wpt a donde me dirigjo
-	//TextView txtLat;
-	//TextView txtLong;
-	//TextView txtAcc;
 	TextView txtVel;//velocidad a la que navego
 	TextView txtDir;//Direccion que debo seguir para llegar al wpt
 	TextView txtDist;//distancia al wpt
@@ -37,7 +29,7 @@ public class CompassFragment extends CrusoeNavFragments {
 	//private final CrusoeLocationReceiver mReceiver = new CrusoeLocationReceiver();
 	//private boolean registered=false;
 	@Override
-	void UpdateMapView() {
+	protected void UpdateMapView() {
 		// TODO Auto-generated method stub
 		CrusoeApplication app = ((CrusoeApplication)getActivity().getApplication());
 		try{
@@ -126,25 +118,32 @@ public class CompassFragment extends CrusoeNavFragments {
 		setGoto("GOTO: -");
 		setDist("DIST: -");
 		setDir("CUR: " + convCourse(course));
-		setSpeed("VEL: " + speed + " " + spd_unit);
+		setSpeed("VEL: " + getSpeed() + " " + getSpeed_unit());
 	}
 	public void setGotoText()
 	{
 		//cuando la distancia es menor a 50 y luego pasa a ser mayor a 100 suponer que se ha alcanzado el Waypoint.
 		setGoto(name);
-		setDist("DIST " + distto);
+		setDist("DIST " + getDistTo());
 		setDir("DIR: " + bearing);
-		setSpeed("VEL: " + speed + " " + spd_unit);
+		setSpeed("VEL: " + getSpeed() + " " + getSpeed_unit());
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) 
 	{
 		View rootView = null;
-		if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-			rootView = inflater.inflate(R.layout.compass_port, container, false);
+		Configuration cfg = getResources().getConfiguration();
+		int size = cfg.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if(size == Configuration.SCREENLAYOUT_SIZE_SMALL)
+		{
+			if(cfg.orientation == Configuration.ORIENTATION_PORTRAIT)
+				rootView = inflater.inflate(R.layout.compass_small_port, container, false);
+			else
+				rootView = inflater.inflate(R.layout.compass_small_land, container, false);
+		}
 		else
-			rootView = inflater.inflate(R.layout.compass_land, container, false);
+			rootView = inflater.inflate(R.layout.compass_port, container, false);
 		InitializeCompassUI(rootView);
 		
 		return rootView;
@@ -163,9 +162,9 @@ public class CompassFragment extends CrusoeNavFragments {
 	    	ViewGroup g = (ViewGroup)getView();
 	    	g.removeAllViewsInLayout();
 	    	if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
-	    		v = inflater.inflate(R.layout.compass_port, g);
+	    		v = inflater.inflate(R.layout.compass_small_port, g);
 		  	else
-			  	v = inflater.inflate(R.layout.compass_land, g);
+			  	v = inflater.inflate(R.layout.compass_small_land, g);
 			InitializeCompassUI(v);
 		}
 		//if(!registered)

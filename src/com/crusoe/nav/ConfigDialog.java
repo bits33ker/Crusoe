@@ -20,6 +20,7 @@ public class ConfigDialog extends DialogFragment{
 	String version;
 	RadioGroup metrics;//millas o metros
 	RadioGroup maps;//offline u online
+	RadioGroup map_src;
 	public ConfigDialog(String v) {
         // Empty constructor required for DialogFragment
 		version = v;
@@ -40,7 +41,6 @@ public class ConfigDialog extends DialogFragment{
                 ((RadioButton)metrics.findViewById(R.id.radio_metrics)).setChecked(true);
             else
                 ((RadioButton)metrics.findViewById(R.id.radio_miles)).setChecked(true);
-
                         /* Attach CheckedChangeListener to radio group */
                         metrics.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                             @Override
@@ -110,6 +110,43 @@ public class ConfigDialog extends DialogFragment{
                                 dismiss();                            
                                 }
                         });
+                        
+                    	map_src = (RadioGroup) view.findViewById(R.id.map_src);
+                        if(app.map_src==CrusoeNavActivity.MAPQUESTOSM)
+                            ((RadioButton)map_src.findViewById(R.id.mapquest)).setChecked(true);
+                        else
+                            ((RadioButton)map_src.findViewById(R.id.mapnik)).setChecked(true);
+                        map_src.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                                RadioButton rb = (RadioButton) group.findViewById(checkedId);
+                                // Is the button now checked?
+                                boolean checked = rb.isChecked();
+                            	String select = "";
+                                
+                                // Check which radio button was clicked
+                                switch(checkedId) {
+                                    case R.id.mapquest:
+                                        if (checked)
+                                        {
+                                            // Pirates are the best
+                                        	select = "MAPQUEST";
+                                        }
+                                        break;
+                                    case R.id.mapnik :
+                                        if (checked)
+                                        {
+                                            // Ninjas rule
+                                        	select = "MAPNIK";
+                                        }
+                                        break;
+                                }
+                                ConfigDialogListener activity = (ConfigDialogListener) getActivity();
+                                activity.onFinishConfigDialog(select);
+                                dismiss();                            
+                                }
+                        });
+ 
         }
         catch(InflateException ie)
         {

@@ -160,8 +160,7 @@ public class GpxTrackWriter implements TrackFormatWriter {
           Charset.defaultCharset().name());
       pw.println("<?xml-stylesheet type=\"text/xsl\" href=\"details.xsl\"?>");
       pw.println("<gpx");
-      pw.println(" version=\"1.1\"");
-      pw.format(" creator=\"Crusoe %s\"\n", Build.MODEL);
+      pw.println(" version=\"1.1\" creator=\"CrusoeApps\"");
       pw.println(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
       pw.println(" xmlns=\"http://www.topografix.com/GPX/1/1\"");
       pw.print(" xmlns:topografix=\"http://www.topografix.com/GPX/Private/"
@@ -171,6 +170,7 @@ public class GpxTrackWriter implements TrackFormatWriter {
       pw.print("http://www.topografix.com/GPX/Private/TopoGrafix/0/1 ");
       pw.println("http://www.topografix.com/GPX/Private/TopoGrafix/0/1/"
           + "topografix.xsd\">");
+      pw.format("<metadata>\n<name>%s %s </name>\n</metadata>\n", Build.MANUFACTURER, Build.DEVICE);
       // TODO: Author etc.
     }
   }

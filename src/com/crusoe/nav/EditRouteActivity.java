@@ -7,6 +7,7 @@ import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -103,7 +104,8 @@ public class EditRouteActivity extends ListActivity{
        					rp.addWayPoint(p);
        				if(action_selected == CrusoeNavActivity.Insert)
        					rp.insWayPoint(pos_selected+1, p);
-       				CrusoeNavActivity.SaveRoute(rp, rp.getName() + ".gpx");
+       				CrusoeNavActivity.SaveRoute(rp, Environment.getExternalStorageDirectory() + getBaseContext().getString(R.string.wpt_dir), rp.getName() + ".gpx");
+       				//((CrusoeNavActivity)getParent()).SaveRoute(rp, rp.getName() + ".gpx");
        			}
 			}
 			setListAdapter(new ArrayAdapter<String>(EditRouteActivity.this,
@@ -191,11 +193,9 @@ public class EditRouteActivity extends ListActivity{
 	               	}
 	               		break;
 	               	}
-       				CrusoeNavActivity.SaveRoute(rp, rp.getName() + ".gpx");
+       				CrusoeNavActivity.SaveRoute(rp, Environment.getExternalStorageDirectory() + getBaseContext().getString(R.string.wpt_dir), rp.getName() + ".gpx");
+	       			//((CrusoeNavActivity)app.getBaseContext()).SaveRoute(rp, rp.getName() + ".gpx");
        				setListAdapter(new ArrayAdapter<String>(EditRouteActivity.this,	R.layout.goto_view, names));
-	               	//returnIntent.putExtra("ACTION", action_selected);
-	               	//setResult(RESULT_OK,returnIntent);
-	            	//finish();
 	            }
 	        });
 	        AlertDialog alert = builder.create();

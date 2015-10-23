@@ -48,7 +48,7 @@ VERSIONES:
 +	SLIDE: Poder pasar de Actividad DATA a COMPASS y viceversa arrastrando el dedo. OK
 +	Primer Version subida a Google Play.
 +	Version salvada en Github.
-1.2.0.1:Ultima subida
+1.2.0.1:Subida a Google Play Alpha.
 +	Se agrega configuracion de Sistema Metrico. Chequear que se vea en todos los Fragments
 +	Crear clase base de Actividad y heredarla para los View para Small, Medium y Tablet. Check
 +	Verificar que cree Waypoints.gpx si no existe.
@@ -57,16 +57,26 @@ VERSIONES:
 +	En Cels mas grandes usar StatFragment para mostrar WaypointsListActivity y RouteActivity.
 +	Poder agregar Descripcion a cada Waypoint.
 
-1.3.0.0:Actual (en desarrollo)			
+1.3.0.0:			
 +	MAPAS : Trabajar con OSMDroid. Crear mapas con Mobile Atlas Creator. Trabajar con Mapas online y Offline.
 +	Visualizacion de Tracks, Rutas y WayPoints en los Mapas.
 +	Iconos: Se agregaron iconos para los distintos WayPoints.
 
+1.3.0.3: Actual (google play)
++	En la tablet se corrigio el cuelgue en Application.run. Cuando no esta habilitado el GPS va al toast y genera una excepcion. Hace falta el Looper.prepare.
++	En la tableta no puedo ver el menu!! Corregido
++	SATELITES: Visualizacion de Satelites.
++	Trabaja con Mapquest y Mapnik.
++	Guarda zoom y configuracion en el Persistent Configuration.
+
+
 ROADMAP:
++	Ver filtro de listas. Debo crear WaypointListActivity de AbsListView y llamar a setTextFilterEnabled.
++	Reemplazar WayPoint por GeoPoint.
 +	Agregar distancia al Bearing para saber el desvio.
++	Para SDK mayores a 11 cambiar OptionMenu por ActionBar. Las nuevas version de Android no tienen Menu!!!
 +	Indicaciones: bajar las indicaciones en KML del Google, convertirlas a gpx y usar esto para guiarme.
 +	Ver que el programa pueda entneder los kml o en su defecto los gpx convertidos.
-+	SATELITES: Visualizacion de Satelites.
 + 	Base de Datos para Waypoints y ¿Mapas? 
 +	FOTOS: poder sacar fotos y ubicarlas en tiempo y espacio.
 +	WEB: Servidor web donde poder subir las cosas.
@@ -74,5 +84,6 @@ ROADMAP:
 UPLOAD:
 + Primero hay que firmar la App en modo Release.
 + zipalign -f -v 4 bin/Crusoe.apk CrusoeNav1.2.apk
-+ Firmar como Release
++ Firmar como Release. Boton derecho sobre el proyecto->export->Export Android Application.
++ Private key utilizada CrusoeNav-RDLP-V1.3.jks
 + Upload: https://play.google.com/apps/publish/?dev_acc=12506541493977587071#ApkPlace:p=com.muke.crusoe

@@ -53,7 +53,8 @@ public class TracksFragment extends CrusoeNavFragments implements OnItemClickLis
     		try{
     			Log.i("TAG", "TracksFragment.onCreateView");
     			tracks.clear();
-    			File CrusoeDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Tracks");
+    			wsa.clear();
+    			File CrusoeDir =  new File(Environment.getExternalStorageDirectory() + getActivity().getBaseContext().getString(R.string.track_dir));
     			File []archivos = CrusoeDir.listFiles(new FileExtFilter("gpx"));
     			for(File a : archivos)
     			{
@@ -69,7 +70,7 @@ public class TracksFragment extends CrusoeNavFragments implements OnItemClickLis
 		}
 	};
 	@Override
-	void UpdateMapView() 
+	protected void UpdateMapView() 
 	{
 	}
 
@@ -122,7 +123,7 @@ public class TracksFragment extends CrusoeNavFragments implements OnItemClickLis
 		try{
 			Log.i("TAG", "TracksFragment.onCreateView");
 		
-			File CrusoeDir =  new File(Environment.getExternalStorageDirectory() + "/Crusoe/Tracks");
+			File CrusoeDir =  new File(Environment.getExternalStorageDirectory() + getActivity().getBaseContext().getString(R.string.track_dir));
 			File []archivos = CrusoeDir.listFiles(new FileExtFilter("gpx"));
 			for(File a : archivos)
 			{

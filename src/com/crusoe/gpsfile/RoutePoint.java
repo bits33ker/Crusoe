@@ -5,15 +5,17 @@ import java.util.Collection;
 
 public class RoutePoint {
 	String name;
+	String description;
 	ArrayList<WayPoint> waypoints=null;
 	public RoutePoint(String n)
 	{
 		name = n;
 		waypoints = new ArrayList<WayPoint>();
+		description = "";
 	}
 	public RoutePoint()
 	{
-		name = "";
+		description = name = "";
 		waypoints = new ArrayList<WayPoint>();
 	}
 	public Collection<WayPoint> Locations()
@@ -47,5 +49,13 @@ public class RoutePoint {
 	public void setName(String n)
 	{
 		name = n;
+	}
+	public String getDescription()
+	{
+		return description;
+	}
+	public void setDescription(String d)
+	{
+		description = d;
 	}
 }
