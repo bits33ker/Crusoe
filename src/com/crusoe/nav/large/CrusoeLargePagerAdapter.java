@@ -18,7 +18,7 @@ public class CrusoeLargePagerAdapter extends FragmentPagerAdapter {
 
 		switch (index) {
 		case 0:
-			return new DataNormalFragment();
+			return new DataLargeFragment();
 		case 1:
 			return new MapViewFragment();
 		//case 4:

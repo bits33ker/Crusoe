@@ -73,6 +73,8 @@ public abstract class CrusoeNavActivity extends FragmentActivity
 	public final static int RouteEdit=4;//id de edicion de rutas
 	public final static int WptEdit = 5;
 	public final static int FileCh = 6;
+	public final static int StatRC = 7;
+	public final static int TrackRC = 8;
 	
 	//Constantes utilizadas en las distintas actividades
 	public static final int NotDefined=0;
@@ -563,6 +565,51 @@ public abstract class CrusoeNavActivity extends FragmentActivity
 			}
 		}
 	}
+	/*
+	 * onTrackAction: selecciona el track a ver en el mapa
+	 */
+	void onTrackAction(int resultCode, Intent data)
+	{
+		Log.i("TAG", "CrusoeNavActivity.onActivityResult.onTrackAction");
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
+		if(resultCode==RESULT_OK)
+		{
+			
+			String res = data.getStringExtra("RESULT");
+			int i=0;
+			app.ruta_seguir = null;
+			app.ruta_offset=0;
+			while(i<app.routes.size())
+			{
+				String nombre = app.routes.get(i).getName();
+				if(res.compareTo(nombre)==0)
+					break;
+				i++;
+			}
+			if(i<app.routes.size())
+			{
+					if(mLocation!=null)
+					{
+						RoutePoint R = app.routes.get(i);
+						if(app.ruta_seguir==null)
+							app.ruta_seguir = new ArrayList<StatWpt>();
+						app.ruta_seguir.clear();
+						app.active_route = R.getName();
+						//app.ruta_seguir = new RoutePoint(R.getName());
+						app.track.AddWayPoints(R.Locations());
+						for(WayPoint w:R.Locations())
+						{
+							app.ruta_seguir.add(new StatWpt(w));
+						}
+					}
+		    		else
+			            Toast.makeText(getBaseContext(), 
+			                    R.string.error_gps_pos, 
+			                    Toast.LENGTH_SHORT).show();
+			}
+		    		
+		}
+	}
 	void onWayPointAction(int resultCode, Intent data)
 	{
 		CrusoeApplication app = ((CrusoeApplication)getApplication());
@@ -632,7 +679,7 @@ public abstract class CrusoeNavActivity extends FragmentActivity
 			return;
 		}
 			
-    	if(requestCode==WptRC)//resultado de llamado a WAyPoint ListActivity
+    	if(requestCode==WptRC || requestCode == StatRC)//resultado de llamado a WAyPoint ListActivity
     	{
     		onWayPointAction(resultCode, data);
     	}
@@ -680,7 +727,12 @@ public abstract class CrusoeNavActivity extends FragmentActivity
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		Log.i("TAG", "DataActivity.onCreateOptionsMenu");
-		getMenuInflater().inflate(R.menu.data, menu);
+		Configuration cfg = getResources().getConfiguration();
+		int size = cfg.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if(size == Configuration.SCREENLAYOUT_SIZE_SMALL)
+			getMenuInflater().inflate(R.menu.small, menu);
+		else
+			getMenuInflater().inflate(R.menu.data, menu);
 		return true;
 	}
     @Override
@@ -809,6 +861,31 @@ public abstract class CrusoeNavActivity extends FragmentActivity
 			this.startActivityForResult(fileIntent, FileCh);
     	}
     		break;
+    	case R.id.statlist://para tablets con API>11
+       	{
+			CrusoeApplication app = ((CrusoeApplication)getApplication());
+			if(app.active_route!="")
+			{
+				Intent routeIntent = new Intent(this, StatDialog.class);
+				routeIntent.putExtra("NAMES", app.active_route);
+				routeIntent.putExtra("TYPE", StatRC);
+				this.startActivityForResult(routeIntent, StatRC);
+			}
+			else
+            	Toast.makeText(getBaseContext(), 
+                    R.string.error_no_routes, 
+                    Toast.LENGTH_SHORT).show();
+	}
+    		break;
+    	case R.id.tracklist:
+    	{
+			CrusoeApplication app = ((CrusoeApplication)getApplication());
+				Intent routeIntent = new Intent(this, TrackListActivity.class);
+				routeIntent.putExtra("TYPE", TrackRC);
+				this.startActivityForResult(routeIntent, TrackRC);
+			}
+    		break;
+    		
     	case R.id.action_quit:
     	{
     		try{

@@ -354,6 +354,8 @@ public class MapViewFragment extends CrusoeNavFragments{
 			}
 			//cargo el track hecho hasta el momento
 			trk = new PathOverlay(getResources().getColor(R.color.track_color), mResourceProxy);
+			if(trk==null)
+				throw new Exception("TrackPoint == null");
 			CargoTrack();
 			locOverlay.enableMyLocation();
 			//locOverlay.disableCompass();
@@ -362,7 +364,8 @@ public class MapViewFragment extends CrusoeNavFragments{
         
         }catch(Exception e)
         {
-        	Log.i("ERROR", e.getMessage());
+			Toast.makeText(getActivity(), "MapFragment.CreateView " + e.getMessage(), Toast.LENGTH_LONG).show();
+        	Log.i("ERROR", "MapFragment.CreateView " + e.getMessage());
         }
 		return viewroot;
     }

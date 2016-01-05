@@ -117,6 +117,7 @@ public final class R {
         public static final int statlist=0x7f0b0036;
         public static final int tiempo=0x7f0b001d;
         public static final int track_name=0x7f0b003b;
+        public static final int tracklist=0x7f0b0046;
         public static final int txtAcc=0x7f0b0034;
         public static final int txtLat=0x7f0b0033;
         public static final int txtLong=0x7f0b0032;
@@ -156,12 +157,14 @@ public final class R {
         public static final int normal_port=0x7f030017;
         public static final int stat_view=0x7f030018;
         public static final int stat_wpt=0x7f030019;
-        public static final int track_view=0x7f03001a;
-        public static final int track_wpt=0x7f03001b;
-        public static final int waypoint_view=0x7f03001c;
+        public static final int statdlg=0x7f03001a;
+        public static final int track_view=0x7f03001b;
+        public static final int track_wpt=0x7f03001c;
+        public static final int waypoint_view=0x7f03001d;
     }
     public static final class menu {
         public static final int data=0x7f0a0000;
+        public static final int small=0x7f0a0001;
     }
     public static final class raw {
         public static final int riodelaplata=0x7f040000;
@@ -184,6 +187,7 @@ public final class R {
         public static final int action_quit=0x7f07000a;
         public static final int action_route=0x7f070010;
         public static final int action_settings=0x7f070004;
+        public static final int action_stat=0x7f070032;
         public static final int action_track=0x7f07000c;
         public static final int app_name=0x7f070000;
         public static final int cfg_km=0x7f07002b;
@@ -215,6 +219,7 @@ public final class R {
         public static final int msg_no_route=0x7f070024;
         public static final int nautic_miles=0x7f070026;
         public static final int track_dir=0x7f070003;
+        public static final int track_list=0x7f070033;
         public static final int wpt_dir=0x7f070002;
         public static final int wpt_name=0x7f070020;
     }
@@ -228,6 +233,11 @@ public final class R {
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         
+
+        Base application theme for API 11+. This theme completely replaces
+        AppBaseTheme from res/values/styles.xml on API 11+ devices.
+    
+ API 11 theme customizations can go here. 
          */
         public static final int AppBaseTheme=0x7f090000;
         /**  Application theme. 

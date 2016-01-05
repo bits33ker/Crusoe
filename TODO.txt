@@ -69,8 +69,10 @@ VERSIONES:
 +	Trabaja con Mapquest y Mapnik.
 +	Guarda zoom y configuracion en el Persistent Configuration.
 
-
 ROADMAP:
++	Mostrar el menu (Action Bar)como corresponde. A partir de la API 11 (android 3.0) se usa el Action Bar. En los Android grandes como la Tablet usar el action bar.
++	Guardar la ultima geo posicion.
++	En la tablet, se ve duplicado el GPS Status.
 +	Ver filtro de listas. Debo crear WaypointListActivity de AbsListView y llamar a setTextFilterEnabled.
 +	Reemplazar WayPoint por GeoPoint.
 +	Agregar distancia al Bearing para saber el desvio.

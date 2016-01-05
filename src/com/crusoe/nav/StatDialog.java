@@ -12,11 +12,13 @@ import com.crusoe.gpsfile.WayPoint;
 
 import android.app.AlertDialog;
 import android.app.Activity;
+import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,11 +33,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class StatFragment extends CrusoeNavFragments implements OnItemClickListener{
+public class StatDialog extends ListActivity implements OnItemClickListener{
 	WayPoint mLocAnterior = null;
 	//double speed = 0;
 	//String spd_unit;
 	float distto=0;//distancia al wpt
+	Location mLocation;
 	StatWptAdapter wsa = null;
 
 	public static final String CRUSOE_STAT_MESSAGE = "com.crusoe.nav.stat.message";
@@ -51,7 +54,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 			//extraigo de Intent los datos enviados
     		Log.i("TAG", "StatFragment.CrusoeMessageReceiver.onReceive");
 			try{
-				CrusoeApplication app = ((CrusoeApplication)getActivity().getApplication());
+				CrusoeApplication app = ((CrusoeApplication)getApplication());
 				wptlist.clear();//names.clear();
 				if(app.ruta_seguir!=null && app.ruta_seguir.size()!=0)
 				{
@@ -67,45 +70,12 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 		}
 			catch(Exception e)
 			{
-                Toast.makeText(getActivity().getBaseContext(), 
+                Toast.makeText(getBaseContext(), 
                 		"StatFragment.CrusoeMessageReceiver: " + e.getMessage(), 
                         Toast.LENGTH_SHORT).show();
 			}
 		}
 	};
-	@Override
-	protected void UpdateMapView() {
-		// TODO Auto-generated method stub
-		try
-		{
-			if(mLocAnterior!=null)
-			{
-				float rec = mLocAnterior.distanceTo(mLocation); 
-				if(rec>=25.0)
-				{
-					//setDataText(intent);
-					if(wsa!=null)
-						wsa.notifyDataSetChanged();
-					//wsa.UpdateList();
-					mLocAnterior = mLocation;
-				}
-			}
-			else
-			{
-				mLocAnterior=mLocation;
-				if(wsa!=null)
-					wsa.notifyDataSetChanged();
-			}
-		}
-		catch(Exception e)
-		{
-            Toast.makeText(getActivity().getBaseContext(), 
-            		"StatFragment.CrusoeLocationReceiver: " + e.getMessage(), 
-                    Toast.LENGTH_SHORT).show();
-			
-		}
-		
-	}
 
     public class StatWptAdapter extends ArrayAdapter<StatWpt> {
         private ArrayList<StatWpt> items;
@@ -134,7 +104,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
         		return v;
             if (v == null) {
         		Log.e("GPS", "StatFragment.getView NULL");
-                LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.stat_wpt, null);
                 wptHolder = new StatWptViewHolder();
                 wptHolder.wpt = (TextView)v.findViewById(R.id.wpt_name);
@@ -157,7 +127,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
             if (sw != null && sw.getWpt()!=null) {
             	wptHolder.wpt.setText(sw.getName());
         		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        		CrusoeApplication app = ((CrusoeApplication)getActivity().getApplication());
+        		CrusoeApplication app = ((CrusoeApplication)getApplication());
             	if(mLocation!=null && sw.Terminado()==false)
             	{
             		if(pos<app.ruta_offset)
@@ -170,9 +140,9 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
             		{
             			distto = mLocation.distanceTo(sw.getWpt());
         				wptHolder.dist.setText(app.Distance(distto));//(sw.getDist());
-                		if(getSpeed()!=0)
+                		if(mLocation.getSpeed()!=0)
                 		{
-                			float eta = (float) ((distto*3.6)/getSpeed());
+                			float eta = (float) ((distto*3.6)/mLocation.getSpeed());
                 			//wptHolder.eta.setText(sdf.format(new Date((long)eta*1000)));
                 			wptHolder.eta.setText(CrusoeNavActivity.convMilliSec((long)(1000*eta)));
                 		}
@@ -184,9 +154,9 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
                         StatWpt sw2 = items.get(pos-1);
             			distto += sw2.getWpt().distanceTo(sw.getWpt());
         				wptHolder.dist.setText(app.Distance(distto));//(sw.getDist());
-                		if(getSpeed()!=0)
+                		if(mLocation.getSpeed()!=0)
                 		{
-                			float eta = (float) ((distto*3.6)/getSpeed());
+                			float eta = (float) ((distto*3.6)/mLocation.getSpeed());
                 			wptHolder.eta.setText(CrusoeNavActivity.convMilliSec((long)(1000*eta)));
                 		}
                 		//else
@@ -214,13 +184,12 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
     ArrayList<StatWpt> wptlist = new ArrayList<StatWpt>();
 	//String [] nombres ={"Luis", "Eugenio", "Voss"};
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		View rootView = null;
 		try{
-		Log.i("TAG", "StatFragment.onCreateView");
+		Log.i("TAG", "StatDialog.onCreate");
 		
-		CrusoeApplication app = ((CrusoeApplication)getActivity().getApplication());
+		CrusoeApplication app = ((CrusoeApplication)getApplication());
 		wptlist.clear();//names.clear();
 		if(app.ruta_seguir!=null && app.ruta_seguir.size()!=0)
 		{
@@ -233,33 +202,36 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 		//else
 		//	wptlist.add(new StatWpt());//names.add("STATS");
 		}
-			
-		rootView = inflater.inflate(R.layout.stat_view, container, false);
-		if(rootView==null)
-		{
-			Log.i("ERROR", "StatFragment.onCreateView View==NULL");
-			return rootView;
-		}
+		mLocation = app.lastWpt;	
+		setListAdapter(new ArrayAdapter<StatWpt>(StatDialog.this,
+				R.layout.goto_view, wptlist));
 		ListView lv = (ListView)rootView.findViewById(R.id.statlist);
 		//lv.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.stat_view, R.id.emptylist, names));
-		wsa = new StatWptAdapter(getActivity().getBaseContext(), R.layout.stat_view, wptlist);
+		wsa = new StatWptAdapter(getBaseContext(), R.layout.stat_view, wptlist);
 		lv.setAdapter(wsa);
 		lv.setOnItemClickListener(this); 
 		}
 		catch(Exception e)
 		{
-			Log.i("ERROR", "StatFragment.onCreateView " + e.getMessage());			
+			Log.i("ERROR", "StatDialog.onCreate " + e.getMessage());			
 		}
-		return rootView;
 	}
 
 	@Override
 	public void onResume()
 	{
 		super.onResume();
+		/*
+		if(!locRegistered)
+		{
+			if(getActivity().registerReceiver(locReceiver, locFilter)!=null)
+				locRegistered = true;
+			else
+				Log.i("ERROR", "StatFragment.onResume.CrusoeLocationReceiver");			
+		}*/
 		if(!msgRegistered)
 		{
-			if(getActivity().registerReceiver(msgReceiver, msgFilter)!=null)
+			if(registerReceiver(msgReceiver, msgFilter)!=null)
 				msgRegistered = true;
 			else
 				Log.i("ERROR", "StatFragment.onResume.CrusoeMessageReceiver");			
@@ -273,7 +245,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 			//getActivity().unregisterReceiver(locReceiver);
 		//locRegistered = false;
 		if(msgRegistered)
-			getActivity().unregisterReceiver(msgReceiver);
+			unregisterReceiver(msgReceiver);
 		msgRegistered = false;
 	}
 	@Override
@@ -283,9 +255,9 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 			return;
 		}
 		//CrusoeApplication app = ((CrusoeApplication)getApplication());
-    	this.getActivity().setResult(Activity.RESULT_OK,data);//reenvio los datos a CrusoeNavActivity		
+    	this.setResult(Activity.RESULT_OK,data);//reenvio los datos a CrusoeNavActivity		
 		//por ahora solo el Add, Edit waypoints y Mark.
-		this.getActivity().finish();
+		finish();
     }
 
 	int pos_selected=-1;
@@ -294,7 +266,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
 		// TODO Auto-generated method stub
         //Toast.makeText(getActivity(), "Item: " + position, Toast.LENGTH_SHORT).show();
 		pos_selected = position;
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(wptlist.get(position).getName());
 		builder.setItems(R.array.GoTo_menues, new DialogInterface.OnClickListener() {            
             public void onClick(DialogInterface dialog, int item) {
@@ -316,7 +288,7 @@ public class StatFragment extends CrusoeNavFragments implements OnItemClickListe
                			return;
                	}
                	t.putExtra("ACTION",select);
-               	getActivity().sendBroadcast(t);
+               	sendBroadcast(t);
             }
         });
         AlertDialog alert = builder.create();

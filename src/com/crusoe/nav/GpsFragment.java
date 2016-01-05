@@ -13,6 +13,7 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 import com.crusoe.nav.R;
 
+import android.app.ActionBar.LayoutParams;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +30,9 @@ import android.widget.Toast;
 
 public class GpsFragment extends Fragment {
     
+	GraphicalView gv = null;
 	CategorySeries series = new CategorySeries("GpsStatus");
+	XYMultipleSeriesDataset dataSet = null;
 
 	private final IntentFilter msgFilter = new IntentFilter(CrusoeApplication.CRUSOE_GPS_STATUS_INTENT);
 	private final CrusoeMessageReceiver msgReceiver = new CrusoeMessageReceiver();
@@ -82,9 +85,9 @@ public class GpsFragment extends Fragment {
 	        
 			rootView = inflater.inflate(R.layout.gps_view, container, false);
 
-			Double [] array = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+			//Double [] array = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
 			
-			drawChart(array);
+			//drawChart(array);
 
 		}
 		catch(ExceptionInInitializerError ie)
@@ -97,21 +100,23 @@ public class GpsFragment extends Fragment {
 		}
 		return rootView;
 	}
+	@SuppressWarnings("deprecation")
 	void drawChart(Double []val)
 	{
 		try{
 			if(val==null)
 				return;
-	        RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.chart);
-	        if(layout==null)
-	        	return;
-	        //int y[] = {25,10,15,20};
+
+			//int y[] = {25,10,15,20};
 			series.clear();
-	        for(int i=0; i < val.length; i++){
+			
+			for(int i=0; i < val.length; i++){
 	            series.add("Bar"+(i+1),val[i]);
 	        }
 	        
-	        XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();  // collection of series under one object.,there could any
+			if(gv==null)
+			{
+	        dataSet = new XYMultipleSeriesDataset();  // collection of series under one object.,there could any
 	        dataSet.addSeries(series.toXYSeries());                            // number of series
 	        
 	        //customization of the chart
@@ -150,23 +155,30 @@ public class GpsFragment extends Fragment {
 	        int i=0;
 	        while(i<val.length)
 	        	mRenderer.addXTextLabel(i+1, "" + i++);
-	        //mRenderer.addXTextLabel(2,"GPS 2");
-	        //mRenderer.addXTextLabel(3,"GPS 3");
-	        //mRenderer.addXTextLabel(4,"GPS 4");
-	        //mRenderer.setPanEnabled(true, true);    // will fix the chart position
-	     //Intent intent = ChartFactory.getBarChartIntent(context, dataSet, mRenderer,Type.DEFAULT);
-	        GraphicalView gv = ChartFactory.getBarChartView(getActivity(), dataSet, mRenderer, Type.DEFAULT); 
+
+	        //Intent intent = ChartFactory.getBarChartIntent(context, dataSet, mRenderer,Type.DEFAULT);
+			RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.chart);
+	        if(layout==null)
+	        	return;
+	        gv = ChartFactory.getBarChartView(getActivity(), dataSet, mRenderer, Type.DEFAULT); 
 	        //gv.setBackgroundColor(getResources().getColor(R.color.background_color));
 	       
-	        layout.removeAllViewsInLayout();
+	        layout.removeAllViews();
 	        layout.addView(gv);
-	 	   			//bar = new GpsBarChart();
-			
+			}
+			else
+			{
+				dataSet.clear();
+		        dataSet.addSeries(series.toXYSeries());                            // number of series				
+				gv.repaint();
+			}
+	        
+	        
 		}
 		catch(Exception e)
 		{
             Toast.makeText(getActivity().getBaseContext(), 
-            		"GpsSmallFragment.drawChart: " + e.getMessage(), 
+            		"GpsFragment.drawChart: " + e.getMessage(), 
                     Toast.LENGTH_SHORT).show();
 			
 		}
@@ -182,9 +194,9 @@ public class GpsFragment extends Fragment {
 			//else
 			//	Log.i("ERROR", "StatFragment.onResume.CrusoeMessageReceiver");			
 		}
-		Double [] array = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+		//Double [] array = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
 		
-		drawChart(array);
+		//drawChart(array);
 	}
 	@Override
 	public void onPause()

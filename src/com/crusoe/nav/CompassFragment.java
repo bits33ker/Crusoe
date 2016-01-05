@@ -15,7 +15,11 @@ import android.widget.Toast;
 
 public class CompassFragment extends CrusoeNavFragments {
 	ImageView compassView = null;
+	float compassX, compassY;
+	float scaleXcompass, scaleYcompass;
 	ImageView sailboatView = null;
+	float sailX, sailY;
+	float scaleXsail, scaleYsail;
 	TextView txtGoto;//nombre del wpt a donde me dirigjo
 	TextView txtVel;//velocidad a la que navego
 	TextView txtDir;//Direccion que debo seguir para llegar al wpt
@@ -33,15 +37,16 @@ public class CompassFragment extends CrusoeNavFragments {
 		// TODO Auto-generated method stub
 		CrusoeApplication app = ((CrusoeApplication)getActivity().getApplication());
 		try{
-
 			RotateAnimation rotCompass = null;
 			rotCompass = new RotateAnimation(-curAnterior, -course, compassView.getWidth()/2, compassView.getHeight()/2);
+			//rotCompass = new RotateAnimation(-curAnterior, -course, compassX, compassY);
 			rotCompass.setFillAfter(true);
 			rotCompass.setFillEnabled(true);
 			compassView.startAnimation(rotCompass);
 
 			RotateAnimation rotSailboat = null;
-			rotSailboat = new RotateAnimation(bearing-course, bearing-course, sailboatView.getWidth()/2, sailboatView.getHeight()/2);
+			//rotSailboat = new RotateAnimation(bearing-course, bearing-course, sailboatView.getWidth()/2, sailboatView.getHeight()/2);
+			rotSailboat = new RotateAnimation(bearing-course, bearing-course, sailboatView.getWidth()/2, (compassView.getTop() + compassView.getHeight())/2);
 			rotSailboat.setFillAfter(true);
 			rotSailboat.setFillEnabled(true);
 			sailboatView.startAnimation(rotSailboat);
@@ -93,7 +98,15 @@ public class CompassFragment extends CrusoeNavFragments {
 		txtDir = (TextView) rootView.findViewById(R.id.Renglon3);
 		txtDist = (TextView) rootView.findViewById(R.id.Renglon4);
 		compassView = (ImageView)rootView.findViewById(R.id.compassView);
+		compassX = compassView.getPivotX();
+		compassY = compassView.getPivotY();
+		scaleXcompass = compassView.getScaleX();
+		scaleYcompass = compassView.getScaleY();
 		sailboatView = (ImageView)rootView.findViewById(R.id.sailboatImg);
+		sailX = sailboatView.getLeft();
+		sailY = sailboatView.getTop();
+		scaleXsail = sailboatView.getWidth();
+		scaleYsail = sailboatView.getHeight();
 		
 		setGoto("     ");
 		setSpeed(getResources().getString(R.string.data_speed));
